@@ -7,12 +7,10 @@ import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class IRolePersistenceServiceImpl implements IRolePersistenceService {
+public class RolePersistenceServiceImpl implements IRolePersistenceService {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
@@ -34,11 +32,5 @@ public class IRolePersistenceServiceImpl implements IRolePersistenceService {
             user.setRole(role);
             userProfileRepository.save(user);
         });
-    }
-
-    @Override
-    public Map<String, UserRole> loadAllRoles() {
-        return userProfileRepository.findAll().stream()
-                .collect(HashMap::new, (map, user) -> map.put(user.getCif(), user.getRole()), HashMap::putAll);
     }
 }

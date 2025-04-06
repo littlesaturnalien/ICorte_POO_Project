@@ -10,5 +10,4 @@ public interface IRolePersistenceService {
     void saveUserProfile(UserProfile userProfile);
     Optional<UserProfile> findByCif(String cif);
     void updateRole(String cif, UserRole role);
-    Map<String, UserRole> loadAllRoles();
 }

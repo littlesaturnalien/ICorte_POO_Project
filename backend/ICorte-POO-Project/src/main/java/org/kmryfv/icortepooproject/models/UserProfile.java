@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.kmryfv.icortepooproject.dto.UserRole;
 
 @Entity
-@Table(name = "user_profile")
+@Table(name = "perfil_usuario")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -79,32 +79,4 @@ public class RoleAssignmentImpl implements IRoleAssignment {
         }
         return false;
     }
-
-    @Override
-    public void promoteToAdmin(String targetCif) {
-        persistenceService.updateRole(targetCif, UserRole.ADMIN);
-    }
-
-    @Override
-    public void revokeAdminRole(String targetCif) {
-        if (targetCif.equals(SUPERADMIN_CIF)) {
-            throw new RuntimeException("No se puede revocar el rol del superadministrador");
-        }
-        UserProfile userProfile = persistenceService.findByCif(targetCif)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        UserRole defaultRole;
-        if ("Estudiante".equalsIgnoreCase(userProfile.getType())) {
-            defaultRole = UserRole.STUDENT;
-        } else {
-            defaultRole = UserRole.BLOCKED;
-        }
-        persistenceService.updateRole(targetCif, defaultRole);
-    }
-
-    @Override
-    public boolean canManageRoles(String cif) {
-        return persistenceService.findByCif(cif)
-                .map(user -> user.getRole() == UserRole.SUPERADMIN || user.getRole() == UserRole.ADMIN)
-                .orElse(false);
-    }
 }
