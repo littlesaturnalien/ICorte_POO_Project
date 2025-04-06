@@ -1,6 +1,5 @@
 package org.kmryfv.icortepooproject.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -33,39 +31,11 @@ public class UserController {
             }
             UserDataDTO user = userData.get(0);
             if (!roleService.isAuthorized(user)) {
-                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático. Contacte al administrador.");
+                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
             }
             return ResponseEntity.ok(userData);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al autenticar: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/{adminCif}/promoteToAdmin")
-    public ResponseEntity<?> promoteToAdmin(@PathVariable String adminCif, @RequestBody Map<String, String> cif) {
-        try {
-            if (!roleService.canManageRoles(adminCif)) {
-                return ResponseEntity.status(403).body("No tienes permisos para promover usuarios");
-            }
-            String targetCif = cif.get("cif");
-            roleService.promoteToAdmin(targetCif);
-            return ResponseEntity.ok("Usuario promovido a administrador con éxito");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al promover usuario: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/{adminCif}/revokeAdminRole")
-    public ResponseEntity<?> revokeAdminRole(@PathVariable String adminCif, @RequestBody Map<String, String> cif){
-        try {
-            if (!roleService.canManageRoles(adminCif)) {
-                return ResponseEntity.status(403).body("No tienes permisos para revocar el rol de administrador");
-            }
-            String targetCif = cif.get("cif");
-            roleService.revokeAdminRole(targetCif);
-            return ResponseEntity.ok("Usuario removido del rol de administrador con éxito");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al revocar rol: " + e.getMessage());
         }
     }
 }

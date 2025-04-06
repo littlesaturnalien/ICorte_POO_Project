@@ -3,6 +3,7 @@ package org.kmryfv.icortepooproject.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.kmryfv.icortepooproject.dto.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,10 @@ public class Profile {
 
     @Column(name = "number", nullable = false)
     private String number;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private UserRole role;
 
     @OneToMany(mappedBy = "degreeId")
     private List<Degree> degrees = new ArrayList<>();
