@@ -2,36 +2,31 @@ package org.kmryfv.icortepooproject.services.implement;
 
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.dto.UserRole;
+import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
-import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceJSON;
+import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.kmryfv.icortepooproject.constants.Superadmin.*;
 
 @Service
 public class RoleAssignmentImpl implements IRoleAssignment {
-    private static final String SUPERADMIN_CIF = "23010471";
-    private final Map<String, UserRole> roleMap = new HashMap<>();
-    private final Map<String, Boolean> approvalMap = new HashMap<>();
-    private final IRolePersistenceJSON persistenceService;
+    private final IRolePersistenceService persistenceService;
 
-    public RoleAssignmentImpl(IRolePersistenceJSON persistenceService) {
+    public RoleAssignmentImpl(IRolePersistenceService persistenceService) {
         this.persistenceService = persistenceService;
         initializeRoles();
     }
 
     private void initializeRoles() {
-        roleMap.putAll(persistenceService.loadRoles());
-        approvalMap.putAll(persistenceService.loadApprovals());
-
-        // Asegurarse de que el superadmin esté inicializado
-        if (!roleMap.containsKey(SUPERADMIN_CIF)) {
-            roleMap.put(SUPERADMIN_CIF, UserRole.SUPERADMIN);
-            approvalMap.put(SUPERADMIN_CIF, true);
-            persistenceService.saveRoles(roleMap, approvalMap);
+        if (persistenceService.findByCif(SUPERADMIN_CIF).isEmpty()) {
+            UserProfile superAdmin = new UserProfile(SUPERADMIN_CIF, SUPERADMIN_NAME,
+                    SUPERADMIN_SURNANME, SUPERADMIN_EMAil, UserRole.SUPERADMIN,
+                    SUPERADMIN_TYPE);
+            persistenceService.saveUserProfile(superAdmin);
         }
     }
 
@@ -43,27 +38,30 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     private UserDataDTO assignRoleToUser(UserDataDTO userDTO) {
         String cif = userDTO.getCIF();
 
-        // Verificar si ya existe en el mapa de roles
-        if (roleMap.containsKey(cif)) {
-            userDTO.setRole(roleMap.get(cif));
+        // Verificar si ya existe en la base de datos
+        if (persistenceService.findByCif(cif).isPresent()) {
+            UserProfile existingUser = persistenceService.findByCif(cif).get();
+            userDTO.setRole(existingUser.getRole());
             return userDTO;
         }
 
         // Asignar rol inicial basado en el tipo de la API
         if ("Estudiante".equalsIgnoreCase(userDTO.getType())) {
             userDTO.setRole(UserRole.STUDENT);
-            roleMap.put(cif, UserRole.STUDENT);
-            approvalMap.put(cif, true); // Estudiantes siempre aprobados
-        } else if ("Profesor".equalsIgnoreCase(userDTO.getType())) {
-            userDTO.setRole(UserRole.BLOCKED);
-            roleMap.put(cif, UserRole.BLOCKED);
-            approvalMap.put(cif, false); // Profesores no aprobados por defecto
         } else {
             userDTO.setRole(UserRole.BLOCKED);
-            roleMap.put(cif, UserRole.BLOCKED);
-            approvalMap.put(cif, false);
         }
-        persistenceService.saveRoles(roleMap, approvalMap);
+        // Guardar el nuevo usuario en la base de datos
+        UserProfile newUser = new UserProfile(
+                userDTO.getCIF(),
+                userDTO.getFirstName(),
+                userDTO.getLastName(),
+                userDTO.getEmail(),
+                userDTO.getRole(),
+                userDTO.getType()
+        );
+        persistenceService.saveUserProfile(newUser);
+
         return userDTO;
     }
 
@@ -74,16 +72,17 @@ public class RoleAssignmentImpl implements IRoleAssignment {
         if (user.getRole() == UserRole.ADMIN) return true;
         if (user.getRole() == UserRole.STUDENT) return true;
         if (user.getRole() == UserRole.BLOCKED) {
-            return approvalMap.getOrDefault(user.getCIF(), false);
+            return persistenceService.findByCif(user.getCIF())
+                    .map(UserProfile::getRole)
+                    .filter(role -> role != UserRole.BLOCKED)
+                    .isPresent();
         }
         return false;
     }
 
     @Override
     public void promoteToAdmin(String targetCif) {
-        roleMap.put(targetCif, UserRole.ADMIN);
-        approvalMap.put(targetCif, true);
-        persistenceService.saveRoles(roleMap, approvalMap);
+        persistenceService.updateRole(targetCif, UserRole.ADMIN);
     }
 
     @Override
@@ -91,17 +90,21 @@ public class RoleAssignmentImpl implements IRoleAssignment {
         if (targetCif.equals(SUPERADMIN_CIF)) {
             throw new RuntimeException("No se puede revocar el rol del superadministrador");
         }
-        if (!roleMap.containsKey(targetCif) || roleMap.get(targetCif) != UserRole.ADMIN) {
-            throw new RuntimeException("El usuario no tiene rol de administrador para revocar");
+        UserProfile userProfile = persistenceService.findByCif(targetCif)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        UserRole defaultRole;
+        if ("Estudiante".equalsIgnoreCase(userProfile.getType())) {
+            defaultRole = UserRole.STUDENT;
+        } else {
+            defaultRole = UserRole.BLOCKED;
         }
-        roleMap.remove(targetCif);
-        approvalMap.remove(targetCif);
-        persistenceService.saveRoles(roleMap, approvalMap);
+        persistenceService.updateRole(targetCif, defaultRole);
     }
 
     @Override
     public boolean canManageRoles(String cif) {
-        UserRole role = roleMap.getOrDefault(cif, UserRole.BLOCKED);
-        return role == UserRole.SUPERADMIN || role == UserRole.ADMIN;
+        return persistenceService.findByCif(cif)
+                .map(user -> user.getRole() == UserRole.SUPERADMIN || user.getRole() == UserRole.ADMIN)
+                .orElse(false);
     }
 }
