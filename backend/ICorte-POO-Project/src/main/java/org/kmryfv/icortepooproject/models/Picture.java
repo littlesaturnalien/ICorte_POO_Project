@@ -15,8 +15,4 @@ public class Picture {
     private Long id;
 
     private String url;
-
-    @OneToOne
-    @JoinColumn(name = "userId")
-    private User user;
 }

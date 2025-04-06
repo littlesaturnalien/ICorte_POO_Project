@@ -34,4 +34,6 @@ public class UserDataDTO {
 
     @JsonProperty("facultad")
     private String faculty;
+
+    private UserRole role;
 }
