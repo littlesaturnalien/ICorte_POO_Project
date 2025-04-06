@@ -1,8 +1,8 @@
+package org.kmryfv.icortepooproject.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.catalina.User;
 
 @Entity
 @Getter
@@ -16,6 +16,7 @@ public class Picture {
 
     private String url;
 
-    @OneToOne(mappedBy = "picture")
+    @OneToOne
+    @JoinColumn(name = "userId")
     private User user;
 }
