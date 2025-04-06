@@ -17,7 +17,6 @@ import java.util.Map;
 public class UserController {
     private final IUserService userService;
     private final IRoleAssignment roleService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public UserController(IUserService userService, IRoleAssignment roleService) {
