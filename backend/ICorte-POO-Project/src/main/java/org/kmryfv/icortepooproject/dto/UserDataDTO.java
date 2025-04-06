@@ -12,7 +12,7 @@ import lombok.ToString;
 public class UserDataDTO {
 
     @JsonProperty("cif")
-    private int CIF;
+    private String CIF;
 
     @JsonProperty("nombres")
     private String firstName;
