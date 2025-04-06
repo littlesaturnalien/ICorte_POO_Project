@@ -4,7 +4,7 @@ import org.kmryfv.icortepooproject.dto.UserRole;
 
 import java.util.Map;
 
-public interface IRolePersistence {
+public interface IRolePersistenceJSON {
     void saveRoles(Map<String, UserRole> roleMap, Map<String, Boolean> approvalMap);
     Map<String, UserRole> loadRoles();
     Map<String, Boolean> loadApprovals();

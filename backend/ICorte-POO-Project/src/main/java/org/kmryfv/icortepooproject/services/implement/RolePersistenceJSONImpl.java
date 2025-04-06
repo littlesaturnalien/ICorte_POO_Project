@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.kmryfv.icortepooproject.dto.UserRole;
-import org.kmryfv.icortepooproject.services.interfaces.IRolePersistence;
+import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceJSON;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class RolePersistenceImpl implements IRolePersistence {
+public class RolePersistenceJSONImpl implements IRolePersistenceJSON {
     private static final String ROLES_FILE = "roles.json";
     private final ObjectMapper objectMapper;
 
-    public RolePersistenceImpl() {
+    public RolePersistenceJSONImpl() {
         this.objectMapper = new ObjectMapper();
         // Habilitar formato legible con saltos de línea y sangrías
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);

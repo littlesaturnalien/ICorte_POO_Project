@@ -7,6 +7,7 @@ import java.util.List;
 public interface IRoleAssignment {
     List<UserDataDTO> assignRoles(List<UserDataDTO> userDataList);
     boolean isAuthorized(UserDataDTO user);
-    void promoteToAdmin(String superAdminCif, String targetCif);
+    void promoteToAdmin(String targetCif);
+    void revokeAdminRole(String targetCif);
     boolean canManageRoles(String cif);
 }

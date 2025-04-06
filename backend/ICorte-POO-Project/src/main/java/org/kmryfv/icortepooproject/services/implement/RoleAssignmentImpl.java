@@ -3,7 +3,7 @@ package org.kmryfv.icortepooproject.services.implement;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.dto.UserRole;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
-import org.kmryfv.icortepooproject.services.interfaces.IRolePersistence;
+import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceJSON;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,9 +16,9 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     private static final String SUPERADMIN_CIF = "23010471";
     private final Map<String, UserRole> roleMap = new HashMap<>();
     private final Map<String, Boolean> approvalMap = new HashMap<>();
-    private final IRolePersistence persistenceService;
+    private final IRolePersistenceJSON persistenceService;
 
-    public RoleAssignmentImpl(IRolePersistence persistenceService) {
+    public RoleAssignmentImpl(IRolePersistenceJSON persistenceService) {
         this.persistenceService = persistenceService;
         initializeRoles();
     }
@@ -80,12 +80,22 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     }
 
     @Override
-    public void promoteToAdmin(String superAdminCif, String targetCif) {
-        if (!canManageRoles(superAdminCif)) {
-            throw new RuntimeException("No tienes permisos para promover usuarios");
-        }
+    public void promoteToAdmin(String targetCif) {
         roleMap.put(targetCif, UserRole.ADMIN);
         approvalMap.put(targetCif, true);
+        persistenceService.saveRoles(roleMap, approvalMap);
+    }
+
+    @Override
+    public void revokeAdminRole(String targetCif) {
+        if (targetCif.equals(SUPERADMIN_CIF)) {
+            throw new RuntimeException("No se puede revocar el rol del superadministrador");
+        }
+        if (!roleMap.containsKey(targetCif) || roleMap.get(targetCif) != UserRole.ADMIN) {
+            throw new RuntimeException("El usuario no tiene rol de administrador para revocar");
+        }
+        roleMap.remove(targetCif);
+        approvalMap.remove(targetCif);
         persistenceService.saveRoles(roleMap, approvalMap);
     }
 

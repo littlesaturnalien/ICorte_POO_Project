@@ -12,7 +12,6 @@ import lombok.Setter;
 @Getter @Setter
 public class Faculty {
     @Id
-    private Long facultyId;
-
+    private int facultyId;
     private String facultyName;
 }

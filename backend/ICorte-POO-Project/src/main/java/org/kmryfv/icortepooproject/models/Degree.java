@@ -14,8 +14,7 @@ import lombok.Setter;
 
 public class Degree {
     @Id
-    private Long degreeId;
-
+    private int degreeId;
     private String degreeName;
     private int facultyId;
     @ManyToOne(targetEntity = Faculty.class)
