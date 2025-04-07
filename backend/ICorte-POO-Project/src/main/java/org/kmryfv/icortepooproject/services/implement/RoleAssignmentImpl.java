@@ -1,7 +1,9 @@
 package org.kmryfv.icortepooproject.services.implement;
 
+import org.kmryfv.icortepooproject.constants.Superadmin;
+import org.kmryfv.icortepooproject.constants.Superadmin2;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
-import org.kmryfv.icortepooproject.dto.UserRole;
+import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
 import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceService;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.kmryfv.icortepooproject.constants.Superadmin.*;
+import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
 
 @Service
 public class RoleAssignmentImpl implements IRoleAssignment {
@@ -23,10 +26,10 @@ public class RoleAssignmentImpl implements IRoleAssignment {
 
     private void initializeRoles() {
         if (persistenceService.findByCif(SUPERADMIN_CIF).isEmpty()) {
-            UserProfile superAdmin = new UserProfile(SUPERADMIN_CIF, SUPERADMIN_NAME,
-                    SUPERADMIN_SURNANME, SUPERADMIN_EMAIl, UserRole.SUPERADMIN,
-                    SUPERADMIN_TYPE);
-            persistenceService.saveUserProfile(superAdmin);
+            persistenceService.saveUserProfile(Superadmin.superAdmin);
+        }
+        if (persistenceService.findByCif(SUPERADMIN2_CIF).isEmpty()) {
+            persistenceService.saveUserProfile(Superadmin2.superAdmin);
         }
     }
 

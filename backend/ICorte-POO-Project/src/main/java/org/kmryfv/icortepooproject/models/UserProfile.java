@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.kmryfv.icortepooproject.dto.UserRole;
+import org.kmryfv.icortepooproject.constants.UserRole;
 
 @Entity
 @Table(name = "perfil_usuario")

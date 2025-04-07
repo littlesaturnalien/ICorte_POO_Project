@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.kmryfv.icortepooproject.constants.UserRole;
 
 @ToString @EqualsAndHashCode
 @Getter @Setter @AllArgsConstructor

@@ -1,6 +1,6 @@
 package org.kmryfv.icortepooproject.services.implement;
 
-import org.kmryfv.icortepooproject.dto.UserRole;
+import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IAdminManagement;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.kmryfv.icortepooproject.constants.Superadmin.SUPERADMIN_CIF;
+import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
 
 @Service
 public class AdminManagementImpl implements IAdminManagement {
@@ -30,7 +31,7 @@ public class AdminManagementImpl implements IAdminManagement {
 
     @Override
     public void revokeAdminRole(String targetCif) {
-        if (targetCif.equals(SUPERADMIN_CIF)) {
+        if (targetCif.equals(SUPERADMIN_CIF) || targetCif.equals(SUPERADMIN2_CIF)) {
             throw new RuntimeException("No se puede revocar el rol del superadministrador");
         }
         UserProfile userProfile = persistenceService.findByCif(targetCif.toUpperCase())

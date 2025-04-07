@@ -1,4 +1,4 @@
 package org.kmryfv.icortepooproject.controllers;
 
-public class ProfileController {
+public class UserProfileController {
 }
