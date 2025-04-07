@@ -1,0 +1,26 @@
+/backend/
+/frontend/
+/.idea/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+carnet-uam-frontend/node_modules
+carnet-uam-frontend/.pnp
+carnet-uam-frontend/.pnp.js
+
+# testing
+carnet-uam-frontend/coverage
+
+# production
+carnet-uam-frontend/build
+
+# misc
+carnet-uam-frontend/.DS_Store
+carnet-uam-frontend/.env.local
+carnet-uam-frontend/.env.development.local
+carnet-uam-frontend/.env.test.local
+carnet-uam-frontend/.env.production.local
+
+carnet-uam-frontend/npm-debug.log*
+carnet-uam-frontend/yarn-debug.log*
+carnet-uam-frontend/yarn-error.log*
