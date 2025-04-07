@@ -1,25 +1,18 @@
-import { useEffect, useState } from "react";
+import React from 'react';
 
-const Dashboard = () => {
-    const [student, setStudent] = useState(null);
+const Dashboard = ({ student, onLogout }) => {
+  return (
+    <div className="p-6 bg-green-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Welcome, {student.name}</h1>
+      <p><strong>CIF:</strong> {student.cif}</p>
+      <button
+        onClick={onLogout}
+        className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Log Out
+      </button>
+    </div>
+  );
+};
 
-    useEffect(() => {
-        const data = localStorage.getItem("student");
-        if (data) {
-            setStudent(JSON.parse(data));
-        }
-    }, []);
-
-    if (!student) return <p className="text-center mt-20">Cargando...</p>;
-
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Bienvenido, {student.name}</h1>
-        <p><strong>CIF:</strong> {student.cif}</p>
-        <p><strong>Carrera:</strong> {student.major}</p>
-        
-      </div>
-    );
-  };
-  
-  export default Dashboard;
+export default Dashboard;
