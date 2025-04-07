@@ -1,5 +1,6 @@
 package org.kmryfv.icortepooproject.services.implement;
 
+import jakarta.transaction.Transactional;
 import org.kmryfv.icortepooproject.dto.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;

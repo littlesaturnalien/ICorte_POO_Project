@@ -24,7 +24,7 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     private void initializeRoles() {
         if (persistenceService.findByCif(SUPERADMIN_CIF).isEmpty()) {
             UserProfile superAdmin = new UserProfile(SUPERADMIN_CIF, SUPERADMIN_NAME,
-                    SUPERADMIN_SURNANME, SUPERADMIN_EMAil, UserRole.SUPERADMIN,
+                    SUPERADMIN_SURNANME, SUPERADMIN_EMAIl, UserRole.SUPERADMIN,
                     SUPERADMIN_TYPE);
             persistenceService.saveUserProfile(superAdmin);
         }

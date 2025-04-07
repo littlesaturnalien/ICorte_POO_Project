@@ -25,7 +25,7 @@ public class AdminManagementImpl implements IAdminManagement {
 
     @Override
     public void promoteToAdmin(String targetCif) {
-        persistenceService.updateRole(targetCif, UserRole.ADMIN);
+        persistenceService.updateRole(targetCif.toUpperCase(), UserRole.ADMIN);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AdminManagementImpl implements IAdminManagement {
         if (targetCif.equals(SUPERADMIN_CIF)) {
             throw new RuntimeException("No se puede revocar el rol del superadministrador");
         }
-        UserProfile userProfile = persistenceService.findByCif(targetCif)
+        UserProfile userProfile = persistenceService.findByCif(targetCif.toUpperCase())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         UserRole defaultRole;
         if ("Estudiante".equalsIgnoreCase(userProfile.getType())) {
@@ -41,7 +41,7 @@ public class AdminManagementImpl implements IAdminManagement {
         } else {
             defaultRole = UserRole.BLOCKED;
         }
-        persistenceService.updateRole(targetCif, defaultRole);
+        persistenceService.updateRole(targetCif.toUpperCase(), defaultRole);
     }
 
     @Override

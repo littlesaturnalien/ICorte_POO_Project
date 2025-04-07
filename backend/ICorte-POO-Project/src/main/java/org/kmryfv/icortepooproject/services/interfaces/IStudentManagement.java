@@ -1,4 +1,4 @@
 package org.kmryfv.icortepooproject.services.interfaces;
 
-public interface IStudentManagemen {
+public interface IStudentManagement {
 }

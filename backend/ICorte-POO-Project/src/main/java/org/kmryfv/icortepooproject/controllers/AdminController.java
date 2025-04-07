@@ -2,7 +2,6 @@ package org.kmryfv.icortepooproject.controllers;
 
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.services.interfaces.IAdminManagement;
-import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +23,7 @@ public class AdminController {
             if (!adminService.canManageRoles(adminCif)) {
                 return ResponseEntity.status(403).body("No tienes permisos para promover usuarios");
             }
-            String targetCif = cif.get("cif");
+            String targetCif = cif.get("cif").toUpperCase();
             adminService.promoteToAdmin(targetCif);
             return ResponseEntity.ok("Usuario promovido a administrador con éxito");
         } catch (Exception e) {
@@ -38,7 +37,7 @@ public class AdminController {
             if (!adminService.canManageRoles(adminCif)) {
                 return ResponseEntity.status(403).body("No tienes permisos para revocar el rol de administrador");
             }
-            String targetCif = cif.get("cif");
+            String targetCif = cif.get("cif").toUpperCase();
             adminService.revokeAdminRole(targetCif);
             return ResponseEntity.ok("Usuario removido del rol de administrador con éxito");
         } catch (Exception e) {
