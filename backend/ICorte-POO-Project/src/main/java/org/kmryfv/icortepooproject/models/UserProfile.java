@@ -1,11 +1,15 @@
 package org.kmryfv.icortepooproject.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.kmryfv.icortepooproject.constants.UserRole;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "perfil_usuario")
@@ -36,10 +40,24 @@ public class UserProfile {
     private String type;
 
     @Column(name = "carrera")
-    private String degree;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuario_carrera",
+            joinColumns = @JoinColumn(name = "cif"),
+            inverseJoinColumns = @JoinColumn(name = "degreeId")
+    )
+    @Size(max = 2, message = "El usuario no puede tener más de 2 carreras")
+    private Set<Degree> degrees = new HashSet<>();
 
     @Column(name = "facultad")
-    private String faculty;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuario_facultad",
+            joinColumns = @JoinColumn(name = "cif"),
+            inverseJoinColumns = @JoinColumn(name = "facultyId")
+    )
+    @Size(max = 2, message = "El usuario no puede tener más de 2 facultades")
+    private Set<Faculty> faculties = new HashSet<>();
 
     @Column(name = "numero")
     private String phoneNumber;
