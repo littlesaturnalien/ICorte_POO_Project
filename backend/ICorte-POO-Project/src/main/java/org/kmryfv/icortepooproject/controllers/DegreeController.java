@@ -1,6 +1,7 @@
 package org.kmryfv.icortepooproject.controllers;
 
 import jakarta.validation.Valid;
+import org.kmryfv.icortepooproject.dto.DegreeRequestDTO;
 import org.kmryfv.icortepooproject.models.Degree;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,8 @@ public class DegreeController {
     }
 
     @PostMapping
-    public Degree createDegree(@Valid @RequestBody Degree degree) {
-        return degreeService.save(degree);
+    public Degree createDegree(@RequestBody DegreeRequestDTO request) {
+        return degreeService.save(request);
     }
 
     @PutMapping("/{id}")

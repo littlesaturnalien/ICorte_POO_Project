@@ -1,12 +1,13 @@
 package org.kmryfv.icortepooproject.services.interfaces;
 
+import org.kmryfv.icortepooproject.dto.DegreeRequestDTO;
 import org.kmryfv.icortepooproject.models.Degree;
 
 import java.util.List;
 
 public interface IDegreeManagement {
 
-    Degree save(Degree degree);
+    Degree save(DegreeRequestDTO degree);
 
     List<Degree> getAll();
 

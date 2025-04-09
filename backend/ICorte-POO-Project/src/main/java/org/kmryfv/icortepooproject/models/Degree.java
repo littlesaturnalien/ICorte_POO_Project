@@ -14,7 +14,7 @@ public class Degree {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long degreeId;
     private String degreeName;
-    private int facultyId;
-    @ManyToOne(targetEntity = Faculty.class)
+    @ManyToOne
+    @JoinColumn(name = "facultyId", nullable = false)
     private Faculty faculties;
 }

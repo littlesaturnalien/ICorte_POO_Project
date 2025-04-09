@@ -1,8 +1,11 @@
 package org.kmryfv.icortepooproject.services.implement;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.kmryfv.icortepooproject.dto.DegreeRequestDTO;
 import org.kmryfv.icortepooproject.models.Degree;
+import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.repositories.DegreeRepository;
+import org.kmryfv.icortepooproject.repositories.FacultyRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,14 +16,24 @@ import java.util.List;
 public class DegreeManagementImpl implements IDegreeManagement {
 
     private final DegreeRepository degreeRepository;
+    private final FacultyRepository facultyRepository;
 
     @Autowired
-    public DegreeManagementImpl(DegreeRepository degreeRepository) {
+    public DegreeManagementImpl(DegreeRepository degreeRepository,
+                                FacultyRepository facultyRepository) {
         this.degreeRepository = degreeRepository;
+        this.facultyRepository = facultyRepository;
     }
 
     @Override
-    public Degree save(Degree degree) {
+    public Degree save(DegreeRequestDTO dto) {
+        Faculty faculty = facultyRepository.findById(dto.getFacultyId())
+                .orElseThrow(() -> new EntityNotFoundException("Facultad con id " + dto.getFacultyId() + " no encontrado"));
+
+        Degree degree = new Degree();
+        degree.setDegreeName(dto.getDegreeName());
+        degree.setFaculties(faculty);
+
         return degreeRepository.save(degree);
     }
 
