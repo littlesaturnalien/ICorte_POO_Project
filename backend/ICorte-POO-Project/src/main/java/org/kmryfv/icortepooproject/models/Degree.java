@@ -1,10 +1,7 @@
 package org.kmryfv.icortepooproject.models;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +11,8 @@ import lombok.Setter;
 
 public class Degree {
     @Id
-    private int degreeId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long degreeId;
     private String degreeName;
     private int facultyId;
     @ManyToOne(targetEntity = Faculty.class)
