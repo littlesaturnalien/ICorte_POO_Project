@@ -23,4 +23,7 @@ public class Picture {
 
     @Column(name = "url_foto", nullable = false)
     private String photoUrl;
+
+    @OneToOne(mappedBy = "picture")
+    private Requirement requirement;
 }
