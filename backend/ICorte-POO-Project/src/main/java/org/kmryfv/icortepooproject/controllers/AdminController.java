@@ -45,13 +45,13 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<UserProfile>> getAllAdmins() {
+    @GetMapping
+    public ResponseEntity<?> getAllAdmins() {
         try {
             List<UserProfile> admins = adminService.getAllAdmins();
             return ResponseEntity.ok(admins);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(List.of(new UserProfile("error", "Error", "al", "listar", null, "administradores")));
+            return ResponseEntity.status(500).body("Error al listar a los administradores: " + e.getMessage());
         }
     }
 }

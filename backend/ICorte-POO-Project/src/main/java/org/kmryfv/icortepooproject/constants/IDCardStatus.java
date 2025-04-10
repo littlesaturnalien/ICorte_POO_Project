@@ -5,5 +5,9 @@ public enum IDCardStatus {
     APPROVED,
     REJECTED,
     DELIVERED,
-    EMITTED
+    EMITTED;
+
+    public static IDCardStatus changeStatus(String status) {
+        return IDCardStatus.valueOf(status);
+    }
 }

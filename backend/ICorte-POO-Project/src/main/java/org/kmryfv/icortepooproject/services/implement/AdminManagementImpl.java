@@ -4,7 +4,7 @@ import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IAdminManagement;
-import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceService;
+import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,17 +16,17 @@ import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
 @Service
 public class AdminManagementImpl implements IAdminManagement {
     private final UserProfileRepository userProfileRepository;
-    private final IRolePersistenceService persistenceService;
+    private final IUserService userService;
 
-    public AdminManagementImpl(IRolePersistenceService persistenceService,
+    public AdminManagementImpl(IUserService userService,
                                UserProfileRepository userProfileRepository){
-        this.persistenceService = persistenceService;
+        this.userService = userService;
         this.userProfileRepository = userProfileRepository;
     }
 
     @Override
     public void promoteToAdmin(String targetCif) {
-        persistenceService.updateRole(targetCif.toUpperCase(), UserRole.ADMIN);
+        userService.updateRole(targetCif.toUpperCase(), UserRole.ADMIN);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class AdminManagementImpl implements IAdminManagement {
         if (targetCif.equals(SUPERADMIN_CIF) || targetCif.equals(SUPERADMIN2_CIF)) {
             throw new RuntimeException("No se puede revocar el rol del superadministrador");
         }
-        UserProfile userProfile = persistenceService.findByCif(targetCif.toUpperCase())
+        UserProfile userProfile = userService.findByCif(targetCif.toUpperCase())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         UserRole defaultRole;
         if ("Estudiante".equalsIgnoreCase(userProfile.getType())) {
@@ -42,12 +42,12 @@ public class AdminManagementImpl implements IAdminManagement {
         } else {
             defaultRole = UserRole.BLOCKED;
         }
-        persistenceService.updateRole(targetCif.toUpperCase(), defaultRole);
+        userService.updateRole(targetCif.toUpperCase(), defaultRole);
     }
 
     @Override
     public boolean canManageRoles(String cif) {
-        return persistenceService.findByCif(cif)
+        return userService.findByCif(cif)
                 .map(user -> user.getRole() == UserRole.SUPERADMIN || user.getRole() == UserRole.ADMIN)
                 .orElse(false);
     }

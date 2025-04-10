@@ -6,7 +6,7 @@ import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
-import org.kmryfv.icortepooproject.services.interfaces.IRolePersistenceService;
+import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,19 +17,19 @@ import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
 
 @Service
 public class RoleAssignmentImpl implements IRoleAssignment {
-    private final IRolePersistenceService persistenceService;
+    private final IUserService userService;
 
-    public RoleAssignmentImpl(IRolePersistenceService persistenceService) {
-        this.persistenceService = persistenceService;
+    public RoleAssignmentImpl(IUserService userService) {
+        this.userService = userService;
         initializeRoles();
     }
 
     private void initializeRoles() {
-        if (persistenceService.findByCif(SUPERADMIN_CIF).isEmpty()) {
-            persistenceService.saveUserProfile(Superadmin.superAdmin);
+        if (userService.findByCif(SUPERADMIN_CIF).isEmpty()) {
+            userService.saveUserProfile(Superadmin.superAdmin);
         }
-        if (persistenceService.findByCif(SUPERADMIN2_CIF).isEmpty()) {
-            persistenceService.saveUserProfile(Superadmin2.superAdmin);
+        if (userService.findByCif(SUPERADMIN2_CIF).isEmpty()) {
+            userService.saveUserProfile(Superadmin2.superAdmin);
         }
     }
 
@@ -42,8 +42,8 @@ public class RoleAssignmentImpl implements IRoleAssignment {
         String cif = userDTO.getCIF();
 
         // Verificar si ya existe en la base de datos
-        if (persistenceService.findByCif(cif).isPresent()) {
-            UserProfile existingUser = persistenceService.findByCif(cif).get();
+        if (userService.findByCif(cif).isPresent()) {
+            UserProfile existingUser = userService.findByCif(cif).get();
             userDTO.setRole(existingUser.getRole());
             return userDTO;
         }
@@ -63,23 +63,8 @@ public class RoleAssignmentImpl implements IRoleAssignment {
                 userDTO.getRole(),
                 userDTO.getType()
         );
-        persistenceService.saveUserProfile(newUser);
+        userService.saveUserProfile(newUser);
 
         return userDTO;
-    }
-
-    @Override
-    public boolean isAuthorized(UserDataDTO user) {
-        if (user.getRole() == null) return false;
-        if (user.getRole() == UserRole.SUPERADMIN) return true;
-        if (user.getRole() == UserRole.ADMIN) return true;
-        if (user.getRole() == UserRole.STUDENT) return true;
-        if (user.getRole() == UserRole.BLOCKED) {
-            return persistenceService.findByCif(user.getCIF())
-                    .map(UserProfile::getRole)
-                    .filter(role -> role != UserRole.BLOCKED)
-                    .isPresent();
-        }
-        return false;
     }
 }

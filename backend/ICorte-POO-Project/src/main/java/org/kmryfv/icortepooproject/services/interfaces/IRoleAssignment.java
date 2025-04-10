@@ -6,5 +6,4 @@ import java.util.List;
 
 public interface IRoleAssignment {
     List<UserDataDTO> assignRoles(List<UserDataDTO> userDataList);
-    boolean isAuthorized(UserDataDTO user);
 }
