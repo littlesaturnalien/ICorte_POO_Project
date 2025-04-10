@@ -36,9 +36,9 @@ public class StudentController {
     @GetMapping("/byCify={cif}")
     public ResponseEntity<?> getStudentByCif(@PathVariable("cif") String cif){
         try {
-            var student = userService.findByCif(cif);
+            var student = userService.findByCif(cif.toUpperCase());
             if (student.isEmpty()){
-                return ResponseEntity.status(401).body("No se encuentra el estudiante.");
+                return ResponseEntity.status(401).body("No se encuentra el estudiante con cif: " + cif.toUpperCase());
             } else {
                 return ResponseEntity.ok(student);
             }
