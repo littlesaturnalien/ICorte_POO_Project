@@ -5,8 +5,8 @@ import org.kmryfv.icortepooproject.constants.Superadmin2;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.models.UserProfile;
+import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IRoleAssignment;
-import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,19 +17,20 @@ import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
 
 @Service
 public class RoleAssignmentImpl implements IRoleAssignment {
-    private final IUserService userService;
 
-    public RoleAssignmentImpl(IUserService userService) {
-        this.userService = userService;
+    private final UserProfileRepository userProfileRepository;
+
+    public RoleAssignmentImpl(UserProfileRepository userProfileRepository) {
+        this.userProfileRepository = userProfileRepository;
         initializeRoles();
     }
 
     private void initializeRoles() {
-        if (userService.findByCif(SUPERADMIN_CIF).isEmpty()) {
-            userService.saveUserProfile(Superadmin.superAdmin);
+        if (userProfileRepository.findById(SUPERADMIN_CIF).isEmpty()) {
+            userProfileRepository.save(Superadmin.superAdmin);
         }
-        if (userService.findByCif(SUPERADMIN2_CIF).isEmpty()) {
-            userService.saveUserProfile(Superadmin2.superAdmin);
+        if (userProfileRepository.findById(SUPERADMIN2_CIF).isEmpty()) {
+            userProfileRepository.save(Superadmin2.superAdmin);
         }
     }
 
@@ -39,31 +40,29 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     }
 
     private UserDataDTO assignRoleToUser(UserDataDTO userDTO) {
-        String cif = userDTO.getCIF();
+        String cif = userDTO.getCIF().toUpperCase();
 
-        // Verificar si ya existe en la base de datos
-        if (userService.findByCif(cif).isPresent()) {
-            UserProfile existingUser = userService.findByCif(cif).get();
+        if (userProfileRepository.findById(cif).isPresent()) {
+            UserProfile existingUser = userProfileRepository.findById(cif).get();
             userDTO.setRole(existingUser.getRole());
             return userDTO;
         }
 
-        // Asignar rol inicial basado en el tipo de la API
         if ("Estudiante".equalsIgnoreCase(userDTO.getType())) {
             userDTO.setRole(UserRole.STUDENT);
         } else {
             userDTO.setRole(UserRole.BLOCKED);
         }
-        // Guardar el nuevo usuario en la base de datos
+
         UserProfile newUser = new UserProfile(
-                userDTO.getCIF(),
+                cif,
                 userDTO.getFirstName(),
                 userDTO.getLastName(),
                 userDTO.getEmail(),
                 userDTO.getRole(),
                 userDTO.getType()
         );
-        userService.saveUserProfile(newUser);
+        userProfileRepository.save(newUser);
 
         return userDTO;
     }
