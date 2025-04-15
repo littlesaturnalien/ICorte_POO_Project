@@ -11,7 +11,7 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8087/user/login', {
+      const response = await axios.post('http://localhost:8087/uam-carnet-sys/user/login', {
         cif,
         password
       });
