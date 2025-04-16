@@ -33,7 +33,7 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/byCify={cif}")
+    @GetMapping("/byCif={cif}")
     public ResponseEntity<?> getStudentByCif(@PathVariable("cif") String cif){
         try {
             var student = userService.findByCif(cif.toUpperCase());
@@ -72,6 +72,22 @@ public class StudentController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al listar a los estudiantes: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/byStatus={status}")
+    public ResponseEntity<?> getAllStudentsByIDCardStatus(@PathVariable("status") String status) {
+        try {
+            var students = studentManagement.getStudentsByIDCardStatus(status);
+            if (students.isEmpty()) {
+                return ResponseEntity.status(401).body("No hay estudiantes con estado de carnet: " + status.toUpperCase());
+            } else {
+                return ResponseEntity.ok(students);
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Estado inválido: " + status.toUpperCase());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al listar a los estudiantes por estado: " + e.getMessage());
         }
     }
 }

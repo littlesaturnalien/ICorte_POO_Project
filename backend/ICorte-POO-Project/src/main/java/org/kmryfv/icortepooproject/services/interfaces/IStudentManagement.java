@@ -8,4 +8,5 @@ public interface IStudentManagement {
     List<UserProfile> getAllStudents();
     List<UserProfile> getAllStudentsByDegree(Long id);
     List<UserProfile> getAllStudentsByFaculty(Long id);
+    List<UserProfile> getStudentsByIDCardStatus(String status);
 }

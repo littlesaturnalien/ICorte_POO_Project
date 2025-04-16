@@ -1,0 +1,114 @@
+package org.kmryfv.icortepooproject.services.implement;
+
+import jakarta.persistence.EntityNotFoundException;
+import org.kmryfv.icortepooproject.constants.IDCardStatus;
+import org.kmryfv.icortepooproject.dto.IDCardRequestDTO;
+import org.kmryfv.icortepooproject.dto.IDCardResponseDTO;
+import org.kmryfv.icortepooproject.models.*;
+import org.kmryfv.icortepooproject.repositories.IDCardRepository;
+import org.kmryfv.icortepooproject.repositories.RequirementRepository;
+import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
+import org.kmryfv.icortepooproject.services.interfaces.IIDCardManagement;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class IDCardManagementImpl implements IIDCardManagement {
+
+    private final IDCardRepository idCardRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final RequirementRepository requirementRepository;
+
+    @Autowired
+    public IDCardManagementImpl(IDCardRepository idCardRepository,
+                                UserProfileRepository userProfileRepository,
+                                RequirementRepository requirementRepository) {
+        this.idCardRepository = idCardRepository;
+        this.userProfileRepository = userProfileRepository;
+        this.requirementRepository = requirementRepository;
+    }
+
+    @Override
+    public IDCard create(IDCardRequestDTO dto) {
+        UserProfile user = userProfileRepository.findById(dto.getCif())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario con CIF " + dto.getCif() + " no encontrado"));
+
+        Requirement requirement = requirementRepository.findById(dto.getRequirementId())
+                .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
+
+        IDCard idCard = new IDCard(user, dto.getSemester());
+        idCard.setRequirement(requirement);
+        idCard.setDeliveryAppointment(dto.getDeliveryAppointment());
+        idCard.setIssueDate(java.time.LocalDate.now()); // You can adjust this logic as needed
+
+        return idCardRepository.save(idCard);
+    }
+
+    @Override
+    public List<IDCard> getAll() {
+        return idCardRepository.findAll();
+    }
+
+    @Override
+    public IDCard getById(Long id) {
+        return idCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!idCardRepository.existsById(id)) {
+            throw new EntityNotFoundException("Carnet con ID " + id + " no encontrado para eliminar");
+        }
+        idCardRepository.deleteById(id);
+    }
+
+    @Override
+    public void updateStatus(Long id, String status) {
+        IDCard card = idCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
+
+        try {
+            card.setStatus(IDCardStatus.changeStatus(status.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado inválido: " + status);
+        }
+
+        idCardRepository.save(card);
+    }
+
+    @Override
+    public IDCardResponseDTO getDetailedById(Long id) {
+        IDCard card = idCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
+
+        return mapToDto(card);
+    }
+    public IDCardResponseDTO mapToDto(IDCard card) {
+        IDCardResponseDTO dto = new IDCardResponseDTO();
+        dto.setIdCardId(card.getIdCardId());
+        dto.setSemester(card.getSemester());
+        dto.setIssueDate(card.getIssueDate());
+        dto.setExpirationDate(card.getExpirationDate());
+        dto.setStatus(card.getStatus().name());
+        dto.setDeliveryAppointment(card.getDeliveryAppointment());
+
+        UserProfile user = card.getUser();
+        dto.setCif(user.getCif());
+        dto.setNames(user.getNames());
+        dto.setSurnames(user.getSurnames());
+
+        dto.setDegrees(user.getDegrees().stream()
+                .map(Degree::getDegreeName)
+                .collect(Collectors.toSet()));
+
+        dto.setFaculties(user.getFaculties().stream()
+                .map(Faculty::getFacultyName)
+                .collect(Collectors.toSet()));
+
+        return dto;
+    }
+}
