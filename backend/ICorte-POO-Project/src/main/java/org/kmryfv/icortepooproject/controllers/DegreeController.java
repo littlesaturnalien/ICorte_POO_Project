@@ -2,6 +2,7 @@ package org.kmryfv.icortepooproject.controllers;
 
 import jakarta.validation.Valid;
 import org.kmryfv.icortepooproject.dto.DegreeRequestDTO;
+import org.kmryfv.icortepooproject.dto.DegreeResponseDTO;
 import org.kmryfv.icortepooproject.models.Degree;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +22,17 @@ public class DegreeController {
     }
 
     @GetMapping
-    public List<Degree> getDegrees() {
+    public List<DegreeResponseDTO> getDegrees() {
         return degreeService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Degree getDegreeById(@PathVariable Long id) {
+    public DegreeResponseDTO getDegreeById(@PathVariable Long id) {
         return degreeService.getDegreeById(id);
     }
 
     @GetMapping("/byName/{name}")
-    public Degree getDegreeByName(@PathVariable String name) {
+    public DegreeResponseDTO getDegreeByName(@PathVariable String name) {
         return degreeService.getDegreeByName(name);
     }
 
@@ -41,12 +42,12 @@ public class DegreeController {
     }
 
     @PostMapping
-    public Degree createDegree(@RequestBody DegreeRequestDTO request) {
+    public DegreeResponseDTO createDegree(@RequestBody DegreeRequestDTO request) {
         return degreeService.save(request);
     }
 
     @PutMapping("/{id}")
-    public Degree updateDegree(@PathVariable Long id, @Valid @RequestBody Degree updatedDegree) {
+    public DegreeResponseDTO updateDegree(@PathVariable Long id, @Valid @RequestBody Degree updatedDegree) {
         updatedDegree.setDegreeId(id);
         return degreeService.updateDegree(updatedDegree);
     }

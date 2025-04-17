@@ -1,6 +1,7 @@
 package org.kmryfv.icortepooproject.services.implement;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.kmryfv.icortepooproject.dto.FacultyRequestDTO;
 import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.repositories.FacultyRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IFacultyManagement;
@@ -20,7 +21,9 @@ public class FacultyManagementImpl implements IFacultyManagement {
     }
 
     @Override
-    public Faculty save(Faculty faculty) {
+    public Faculty save(FacultyRequestDTO facultyDTO) {
+        Faculty faculty = new Faculty();
+        faculty.setFacultyName(facultyDTO.getFacultyName());
         return facultyRepository.save(faculty);
     }
 
@@ -32,14 +35,14 @@ public class FacultyManagementImpl implements IFacultyManagement {
     @Override
     public Faculty getById(Long id) {
         return facultyRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Faculty with ID " + id + " not found."));
+                .orElseThrow(() -> new EntityNotFoundException("La facultad con id " + id + " no fue encontrada."));
     }
 
     @Override
     public Faculty update(Faculty faculty) {
         if (!facultyRepository.existsById(faculty.getFacultyId())) {
-            throw new EntityNotFoundException("Cannot update. Faculty with ID "
-                    + faculty.getFacultyId() + " does not exist.");
+            throw new EntityNotFoundException("No se puede actualizar. La facultad con id "
+                    + faculty.getFacultyId() + " no existe.");
         }
         return facultyRepository.save(faculty);
     }
@@ -47,7 +50,7 @@ public class FacultyManagementImpl implements IFacultyManagement {
     @Override
     public void delete(Long id) {
         if (!facultyRepository.existsById(id)) {
-            throw new EntityNotFoundException("Cannot delete. Faculty with ID " + id + " does not exist.");
+            throw new EntityNotFoundException("No se puede eliminar. La facultad con id " + id + " no existe.");
         }
         facultyRepository.deleteById(id);
     }
@@ -60,6 +63,6 @@ public class FacultyManagementImpl implements IFacultyManagement {
     @Override
     public Faculty getByName(String facultyName) {
         return facultyRepository.findByFacultyName(facultyName)
-                .orElseThrow(() -> new EntityNotFoundException("Faculty with name " + facultyName + " not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Facultad con el nombre " + facultyName + " no fue encontrada."));
     }
 }

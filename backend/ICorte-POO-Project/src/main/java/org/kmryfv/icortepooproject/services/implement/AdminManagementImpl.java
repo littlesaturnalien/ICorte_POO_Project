@@ -1,6 +1,7 @@
 package org.kmryfv.icortepooproject.services.implement;
 
 import org.kmryfv.icortepooproject.constants.UserRole;
+import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IAdminManagement;
@@ -56,5 +57,17 @@ public class AdminManagementImpl implements IAdminManagement {
         return userProfileRepository.findAll().stream()
                 .filter(user -> user.getRole() == UserRole.ADMIN || user.getRole() == UserRole.SUPERADMIN)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserProfileResponseDTO getAdminByCif(String cif) {
+        UserProfile user = userProfileRepository.findById(cif.toUpperCase())
+                .orElseThrow(() -> new RuntimeException("Usuario con cif " + cif + " no encontrado"));
+
+        if (!(user.getRole().equals(UserRole.ADMIN) || user.getRole().equals(UserRole.SUPERADMIN))) {
+            throw new RuntimeException("El usuario con cif " + cif + " no es un administrador");
+        }
+
+        return userService.toResponseDTO(user);
     }
 }

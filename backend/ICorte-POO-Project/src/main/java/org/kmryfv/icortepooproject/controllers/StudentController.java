@@ -26,7 +26,7 @@ public class StudentController {
             if (students.isEmpty()){
                 return ResponseEntity.status(401).body("No hay estudiantes registrados.");
             } else {
-                return ResponseEntity.ok(students);
+                return ResponseEntity.ok(students.stream().map(userService::toResponseDTO).toList());
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al listar a los estudiantes.");
@@ -36,12 +36,8 @@ public class StudentController {
     @GetMapping("/byCif={cif}")
     public ResponseEntity<?> getStudentByCif(@PathVariable("cif") String cif){
         try {
-            var student = userService.findByCif(cif.toUpperCase());
-            if (student.isEmpty()){
-                return ResponseEntity.status(401).body("No se encuentra el estudiante con cif: " + cif.toUpperCase());
-            } else {
-                return ResponseEntity.ok(student);
-            }
+            var dto = studentManagement.getStudentByCif(cif);
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al buscar al estudiante: " + e.getMessage());
         }
@@ -54,7 +50,7 @@ public class StudentController {
             if (students.isEmpty()){
                 return ResponseEntity.status(401).body("No hay estudiantes de esta carrera registrados.");
             } else {
-                return ResponseEntity.ok(students);
+                return ResponseEntity.ok(students.stream().map(userService::toResponseDTO).toList());
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al listar a los estudiantes: " + e.getMessage());
@@ -68,7 +64,7 @@ public class StudentController {
             if (students.isEmpty()){
                 return ResponseEntity.status(401).body("No hay estudiantes de esta facultad registrados.");
             } else {
-                return ResponseEntity.ok(students);
+                return ResponseEntity.ok(students.stream().map(userService::toResponseDTO).toList());
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al listar a los estudiantes: " + e.getMessage());
@@ -82,7 +78,7 @@ public class StudentController {
             if (students.isEmpty()) {
                 return ResponseEntity.status(401).body("No hay estudiantes con estado de carnet: " + status.toUpperCase());
             } else {
-                return ResponseEntity.ok(students);
+                return ResponseEntity.ok(students.stream().map(userService::toResponseDTO).toList());
             }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Estado inválido: " + status.toUpperCase());

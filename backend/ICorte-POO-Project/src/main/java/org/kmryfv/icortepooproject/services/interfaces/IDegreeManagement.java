@@ -1,23 +1,26 @@
 package org.kmryfv.icortepooproject.services.interfaces;
 
 import org.kmryfv.icortepooproject.dto.DegreeRequestDTO;
+import org.kmryfv.icortepooproject.dto.DegreeResponseDTO;
 import org.kmryfv.icortepooproject.models.Degree;
 
 import java.util.List;
 
 public interface IDegreeManagement {
 
-    Degree save(DegreeRequestDTO degree);
+    DegreeResponseDTO save(DegreeRequestDTO degree);
 
-    List<Degree> getAll();
+    List<DegreeResponseDTO> getAll();
 
-    Degree getDegreeById(Long id);
+    DegreeResponseDTO getDegreeById(Long id);
 
-    Degree updateDegree(Degree degree);
+    DegreeResponseDTO updateDegree(Degree request);
 
     void deleteDegree(Long id);
 
     boolean isDegreeExists(String degreeName);
 
-    Degree getDegreeByName(String degreeName);
+    DegreeResponseDTO getDegreeByName(String degreeName);
+
+    Degree getEntityById(Long id);
 }

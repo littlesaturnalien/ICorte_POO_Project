@@ -39,6 +39,33 @@ public class UserController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAllUsers(){
+        try {
+            var users = userService.getAllUsers();
+            if (users.isEmpty()){
+                return ResponseEntity.status(401).body("No hay estudiantes registrados.");
+            } else {
+                return ResponseEntity.ok(users);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al listar a los estudiantes.");
+        }
+    }
+
+    @GetMapping("/byCif={cif}")
+    public ResponseEntity<?> getUserByCif(@PathVariable("cif") String cif){
+        try {
+            var user = userService.findByCif(cif);
+            if (user.isEmpty()){
+                return ResponseEntity.status(401).body("Usuario no encontrado");
+            }
+            return ResponseEntity.ok(user.stream().map(userService::toResponseDTO).toList());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al buscar al estudiante: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/cif={cif}/setDegree={id}")
     public ResponseEntity<?> setDegree(@PathVariable("cif") String cif, @PathVariable("id") Long id){
         try{
@@ -47,7 +74,7 @@ public class UserController {
                 return ResponseEntity.status(401).body("No se encontró al usuario con cif: " + cif.toUpperCase());
             } else {
                 var userProfile = user.get();
-                var degree = degreeManagement.getDegreeById(id);
+                var degree = degreeManagement.getEntityById(id);
                 if (degree == null) {
                     return ResponseEntity.status(404).body("No se encontró la carrera con ID: " + id);
                 }
@@ -60,10 +87,42 @@ public class UserController {
                     userProfile.getFaculties().add(faculty);
                 }
                 userService.update(userProfile);
-                return ResponseEntity.ok("Carrera y facultad asignadas con éxito");
+                return ResponseEntity.ok("Carrera asignada con éxito");
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error para agregar carrera: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/cif={cif}/removeDegree={id}")
+    public ResponseEntity<?> removeDegree(@PathVariable("cif") String cif, @PathVariable("id") Long id){
+        try{
+            var user = userService.findByCif(cif.toUpperCase());
+            if (user.isEmpty()) {
+                return ResponseEntity.status(401).body("No se encontró al usuario con cif: " + cif.toUpperCase());
+            } else {
+                var userProfile = user.get();
+                var degree = degreeManagement.getEntityById(id);
+                if (degree == null) {
+                    return ResponseEntity.status(404).body("No se encontró la carrera con ID: " + id);
+                }
+                if (userProfile.getDegrees().contains(degree)) {
+                    var faculty = degree.getFaculties();
+                    userProfile.getDegrees().remove(degree);
+                    boolean hasOtherDegreeFromTheSameFaculty = userProfile.getDegrees().stream()
+                            .anyMatch(d -> d.getFaculties().equals(faculty));
+
+                    if (!hasOtherDegreeFromTheSameFaculty) {
+                        userProfile.getFaculties().remove(faculty);
+                    }
+                    userService.update(userProfile);
+                    return ResponseEntity.ok("Carrera elminada con éxito");
+                } else {
+                    return ResponseEntity.status(400).body("El usuario no tiene asignada esta carrera.");
+                }
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error para remover la carrera: " + e.getMessage());
         }
     }
 
@@ -83,5 +142,10 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error para agregar número: " + e.getMessage());
         }
+    }
+
+    @DeleteMapping("/delete={cif}")
+    public void deleteFaculty(@PathVariable String cif) {
+        userService.delete(cif);
     }
 }

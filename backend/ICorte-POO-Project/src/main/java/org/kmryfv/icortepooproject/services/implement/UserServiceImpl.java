@@ -1,8 +1,12 @@
 package org.kmryfv.icortepooproject.services.implement;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
+import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
+import org.kmryfv.icortepooproject.models.Degree;
+import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.api.ApiManager;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -49,13 +54,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void saveUserProfile(UserProfile userProfile) {
-        userProfileRepository.save(userProfile);
-    }
-
-    @Override
     public Optional<UserProfile> findByCif(String cif) {
-        return userProfileRepository.findById(cif);
+        return userProfileRepository.findById(cif.toUpperCase());
     }
 
     @Override
@@ -70,5 +70,37 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserProfile update(UserProfile user) {
         return userProfileRepository.save(user);
+    }
+
+    @Override
+    public void delete(String cif) {
+        if (!userProfileRepository.existsById(cif.toUpperCase())) {
+            throw new EntityNotFoundException("No se puede eliminar. El usuario con cif " + cif + " no existe.");
+        }
+        userProfileRepository.deleteById(cif.toUpperCase());
+    }
+
+    @Override
+    public List<UserProfileResponseDTO> getAllUsers() {
+        return userProfileRepository.findAll().stream().map(this::toResponseDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserProfileResponseDTO toResponseDTO(UserProfile user) {
+        return new UserProfileResponseDTO(
+                user.getCif(),
+                user.getNames(),
+                user.getSurnames(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getType(),
+                user.getDegrees().stream()
+                        .map(Degree::getDegreeName)
+                        .collect(Collectors.toList()),
+                user.getFaculties().stream()
+                        .map(Faculty::getFacultyName)
+                        .collect(Collectors.toList()),
+                user.getPhoneNumber()
+        );
     }
 }

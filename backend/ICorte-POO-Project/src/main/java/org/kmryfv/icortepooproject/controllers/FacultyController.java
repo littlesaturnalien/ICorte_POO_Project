@@ -1,6 +1,7 @@
 package org.kmryfv.icortepooproject.controllers;
 
 import jakarta.validation.Valid;
+import org.kmryfv.icortepooproject.dto.FacultyRequestDTO;
 import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.services.interfaces.IFacultyManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +46,8 @@ public class FacultyController {
 
     // 5. Create new faculty
     @PostMapping
-    public Faculty createFaculty(@Valid @RequestBody Faculty faculty) {
-        return facultyService.save(faculty);
+    public Faculty createFaculty(@RequestBody FacultyRequestDTO facultyDTO) {
+        return facultyService.save(facultyDTO);
     }
 
     // 6. Update existing faculty

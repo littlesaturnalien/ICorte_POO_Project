@@ -2,6 +2,7 @@ package org.kmryfv.icortepooproject.controllers;
 
 import org.kmryfv.icortepooproject.models.UserProfile;
 import org.kmryfv.icortepooproject.services.interfaces.IAdminManagement;
+import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminController {
     private final IAdminManagement adminService;
+    private final IUserService userService;
 
-    public AdminController(IAdminManagement adminService) {
+    public AdminController(IAdminManagement adminService, IUserService userService) {
         this.adminService = adminService;
+        this.userService = userService;
     }
 
     @PostMapping("/{adminCif}/promoteToAdmin")
@@ -49,9 +52,21 @@ public class AdminController {
     public ResponseEntity<?> getAllAdmins() {
         try {
             List<UserProfile> admins = adminService.getAllAdmins();
-            return ResponseEntity.ok(admins);
+            return ResponseEntity.ok(admins.stream()
+                    .map(userService::toResponseDTO)
+                    .toList());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al listar a los administradores: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/byCif={cif}")
+    public ResponseEntity<?> getAdminByCif(@PathVariable("cif") String cif){
+        try {
+            var dto = adminService.getAdminByCif(cif);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al buscar al administrador: " + e.getMessage());
         }
     }
 }

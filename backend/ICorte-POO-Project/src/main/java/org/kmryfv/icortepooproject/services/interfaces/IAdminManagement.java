@@ -1,6 +1,7 @@
 package org.kmryfv.icortepooproject.services.interfaces;
 
 
+import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
 import org.kmryfv.icortepooproject.models.UserProfile;
 
 import java.util.List;
@@ -10,4 +11,5 @@ public interface IAdminManagement {
     void revokeAdminRole(String targetCif);
     boolean canManageRoles(String cif);
     List<UserProfile> getAllAdmins();
+    UserProfileResponseDTO getAdminByCif(String cif);
 }
