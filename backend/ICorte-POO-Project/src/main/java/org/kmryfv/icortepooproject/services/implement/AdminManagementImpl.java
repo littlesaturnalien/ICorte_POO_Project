@@ -18,8 +18,7 @@ public class AdminManagementImpl implements IAdminManagement {
     private final UserProfileRepository userProfileRepository;
     private final IUserService userService;
 
-    public AdminManagementImpl(IUserService userService,
-                               UserProfileRepository userProfileRepository){
+    public AdminManagementImpl(IUserService userService, UserProfileRepository userProfileRepository){
         this.userService = userService;
         this.userProfileRepository = userProfileRepository;
     }
