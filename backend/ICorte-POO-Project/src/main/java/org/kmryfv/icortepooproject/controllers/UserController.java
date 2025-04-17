@@ -145,7 +145,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete={cif}")
-    public void deleteFaculty(@PathVariable String cif) {
+    public void deleteUser(@PathVariable String cif) {
         userService.delete(cif);
     }
 }
