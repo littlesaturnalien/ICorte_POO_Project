@@ -22,13 +22,16 @@ public class IDCardController {
     }
 
     @PostMapping
-    public IDCard create(@RequestBody IDCardRequestDTO dto) {
-        return idCardService.create(dto);
+    public IDCardResponseDTO create(@RequestBody IDCardRequestDTO dto) {
+        IDCard created = idCardService.create(dto);
+        return idCardService.getDetailedById(created.getIdCardId());
     }
 
     @GetMapping
-    public List<IDCard> getAll() {
-        return idCardService.getAll();
+    public List<IDCardResponseDTO> getAll() {
+        return idCardService.getAll().stream()
+                .map(card -> idCardService.getDetailedById(card.getIdCardId()))
+                .toList();
     }
 
     @GetMapping("/{id}")
