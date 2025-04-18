@@ -5,6 +5,7 @@ import org.kmryfv.icortepooproject.dto.PictureRequestDTO;
 import org.kmryfv.icortepooproject.dto.PictureResponseDTO;
 import org.kmryfv.icortepooproject.models.Picture;
 import org.kmryfv.icortepooproject.repositories.PictureRepository;
+import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IPictureManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,15 +16,19 @@ import java.util.stream.Collectors;
 @Service
 public class PictureManagementImpl implements IPictureManagement {
     private final PictureRepository pictureRepository;
+    private final UserProfileRepository userProfileRepository;
 
     @Autowired
-    public PictureManagementImpl(PictureRepository pictureRepository) {
+    public PictureManagementImpl(PictureRepository pictureRepository, UserProfileRepository userProfileRepository) {
         this.pictureRepository = pictureRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     @Override
     public PictureResponseDTO create(PictureRequestDTO dto) {
+        var student = userProfileRepository.findById(dto.getCif()).orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado"));
         Picture picture = new Picture();
+        picture.setUser(student);
         picture.setPhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoUrl(dto.getPhotoUrl());
 
@@ -66,6 +71,8 @@ public class PictureManagementImpl implements IPictureManagement {
     private PictureResponseDTO toDto(Picture picture) {
         PictureResponseDTO dto = new PictureResponseDTO();
         dto.setPictureId(picture.getPictureId());
+        dto.setCif(picture.getUser().getCif());
+        dto.setName(picture.getUser().getNames() + " " + picture.getUser().getSurnames());
         dto.setPhotoAppointment(picture.getPhotoAppointment());
         dto.setPhotoUrl(picture.getPhotoUrl());
         return dto;

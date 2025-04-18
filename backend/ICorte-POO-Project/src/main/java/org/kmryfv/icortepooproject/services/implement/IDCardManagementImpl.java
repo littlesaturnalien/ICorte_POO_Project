@@ -91,6 +91,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
         IDCardResponseDTO dto = new IDCardResponseDTO();
         dto.setIdCardId(card.getIdCardId());
         dto.setSemester(card.getSemester());
+        dto.setYear(card.getYear());
         dto.setIssueDate(card.getIssueDate());
         dto.setExpirationDate(card.getExpirationDate());
         dto.setStatus(card.getStatus().name());

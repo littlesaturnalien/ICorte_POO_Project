@@ -18,6 +18,10 @@ public class Picture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pictureId;
 
+    @OneToOne
+    @JoinColumn(name = "cif", nullable = false)
+    private UserProfile user;
+
     @Column(name = "toma_de_foto")
     private LocalDateTime photoAppointment;
 

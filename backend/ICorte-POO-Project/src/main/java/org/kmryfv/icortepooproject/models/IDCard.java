@@ -27,6 +27,9 @@ public class IDCard {
     @Column(name = "semestre", nullable = false)
     private String semester;
 
+    @Column(name = "año", nullable = false)
+    private int year = LocalDate.now().getYear();
+
     @Column(name = "fecha_emisión")
     private LocalDate issueDate;
 
