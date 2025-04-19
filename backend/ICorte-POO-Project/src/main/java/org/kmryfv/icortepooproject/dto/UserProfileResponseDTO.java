@@ -17,4 +17,5 @@ public class UserProfileResponseDTO {
     private List<String> degrees;
     private List<String> faculties;
     private String phoneNumber;
+    private List<IDCardSimplifiedDTO> idCards;
 }

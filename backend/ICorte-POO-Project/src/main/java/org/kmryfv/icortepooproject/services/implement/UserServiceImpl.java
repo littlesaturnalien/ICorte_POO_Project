@@ -2,6 +2,7 @@ package org.kmryfv.icortepooproject.services.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.kmryfv.icortepooproject.constants.UserRole;
+import org.kmryfv.icortepooproject.dto.IDCardSimplifiedDTO;
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
 import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
@@ -87,6 +88,15 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserProfileResponseDTO toResponseDTO(UserProfile user) {
+        var idCards = user.getIdCards().stream()
+                .map(card -> new IDCardSimplifiedDTO(
+                        card.getSemester(),
+                        card.getYear(),
+                        card.getStatus().name(),
+                        card.getDeliveryAppointment()
+                ))
+                .toList();
+
         return new UserProfileResponseDTO(
                 user.getCif(),
                 user.getNames(),
@@ -100,7 +110,8 @@ public class UserServiceImpl implements IUserService {
                 user.getFaculties().stream()
                         .map(Faculty::getFacultyName)
                         .collect(Collectors.toList()),
-                user.getPhoneNumber()
+                user.getPhoneNumber(),
+                idCards
         );
     }
 }
