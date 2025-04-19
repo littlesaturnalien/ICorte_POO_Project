@@ -59,12 +59,6 @@ public class IDCardManagementImpl implements IIDCardManagement {
     }
 
     @Override
-    public IDCard getById(Long id) {
-        return idCardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
-    }
-
-    @Override
     public void deleteById(Long id) {
         if (!idCardRepository.existsById(id)) {
             throw new EntityNotFoundException("Carnet con ID " + id + " no encontrado para eliminar");

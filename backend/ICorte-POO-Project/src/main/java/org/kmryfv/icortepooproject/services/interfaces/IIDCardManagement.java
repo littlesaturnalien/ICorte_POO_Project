@@ -9,7 +9,6 @@ import java.util.List;
 public interface IIDCardManagement {
     IDCard create(IDCardRequestDTO dto);
     List<IDCard> getAll();
-    IDCard getById(Long id);
     IDCardResponseDTO getDetailedById(Long id);
     void updateStatus(Long id, String status);
     void deleteById(Long id);

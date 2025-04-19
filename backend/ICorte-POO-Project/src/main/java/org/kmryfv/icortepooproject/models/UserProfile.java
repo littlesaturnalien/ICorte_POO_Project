@@ -59,9 +59,6 @@ public class UserProfile {
     @Column(name = "numero")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<IDCard> idCards;
-
     public UserProfile(String cif, String names, String surnames, String email, UserRole role, String type) {
         this.cif = cif;
         this.names = names;

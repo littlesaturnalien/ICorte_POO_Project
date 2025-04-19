@@ -35,8 +35,8 @@ public class IDCardController {
     }
 
     @GetMapping("/{id}")
-    public IDCard getById(@PathVariable Long id) {
-        return idCardService.getById(id);
+    public IDCardResponseDTO getById(@PathVariable Long id) {
+        return idCardService.getDetailedById(id);
     }
 
     @PatchMapping("/{id}/status")
@@ -47,10 +47,5 @@ public class IDCardController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         idCardService.deleteById(id);
-    }
-
-    @GetMapping("/{id}/details")
-    public IDCardResponseDTO getDetailedCard(@PathVariable Long id) {
-        return idCardService.getDetailedById(id);
     }
 }

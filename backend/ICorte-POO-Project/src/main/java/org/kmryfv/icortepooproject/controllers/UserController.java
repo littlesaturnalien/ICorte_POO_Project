@@ -66,7 +66,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/cif={cif}/setDegree={id}")
+    @PatchMapping("/cif={cif}/setDegree={id}")
     public ResponseEntity<?> setDegree(@PathVariable("cif") String cif, @PathVariable("id") Long id){
         try{
             var user = userService.findByCif(cif.toUpperCase());
@@ -94,7 +94,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/cif={cif}/removeDegree={id}")
+    @PatchMapping("/cif={cif}/removeDegree={id}")
     public ResponseEntity<?> removeDegree(@PathVariable("cif") String cif, @PathVariable("id") Long id){
         try{
             var user = userService.findByCif(cif.toUpperCase());
@@ -127,7 +127,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/cif={cif}/setNumber={number}")
+    @PatchMapping("/cif={cif}/setNumber={number}")
     public ResponseEntity<?> setNumber(@PathVariable("cif") String cif, @PathVariable("number") String number){
         try {
             var user = userService.findByCif(cif.toUpperCase());

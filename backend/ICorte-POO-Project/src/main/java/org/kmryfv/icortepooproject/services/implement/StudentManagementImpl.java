@@ -39,13 +39,15 @@ public class StudentManagementImpl implements IStudentManagement {
     @Override
     public List<UserProfile> getAllStudents() {
         return userProfileRepository.findAll().stream().filter(
-                user -> user.getType().equals("Estudiante")).collect(Collectors.toList());
+                user -> user.getType().equals("Estudiante")
+                        || user.getRole().equals(UserRole.STUDENT)).collect(Collectors.toList());
     }
 
     @Override
     public List<UserProfile> getAllStudentsByDegree(Long id) {
         return userProfileRepository.findAll().stream().filter(
-                user -> user.getType().equals("Estudiante")
+                user -> (user.getType().equals("Estudiante")
+                        || user.getRole().equals(UserRole.STUDENT))
                         && user.getDegrees().contains(degreeManagement.getEntityById(id))).collect(Collectors.toList()
         );
     }
@@ -53,17 +55,18 @@ public class StudentManagementImpl implements IStudentManagement {
     @Override
     public List<UserProfile> getAllStudentsByFaculty(Long id) {
         return userProfileRepository.findAll().stream().filter(
-                user -> user.getType().equals("Estudiante")
+                user -> (user.getType().equals("Estudiante")
+                        || user.getRole().equals(UserRole.STUDENT))
                 && user.getFaculties().contains(facultyManagement.getById(id))).collect(Collectors.toList()
         );
     }
 
     @Override
     public List<UserProfile> getStudentsByIDCardStatus(String status) {
-        IDCardStatus parsedStatus = IDCardStatus.changeStatus(status); // use your helper
-
+        IDCardStatus parsedStatus = IDCardStatus.changeStatus(status);
         return idCardRepository.findUsersByIDCardStatus(parsedStatus).stream()
-                .filter(user -> user.getRole().equals(UserRole.STUDENT))
+                .filter(user -> user.getType().equals("Estudiante")
+                        || user.getRole().equals(UserRole.STUDENT))
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +75,7 @@ public class StudentManagementImpl implements IStudentManagement {
         UserProfile user = userProfileRepository.findById(cif.toUpperCase())
                 .orElseThrow(() -> new RuntimeException("Usuario con cif " + cif + " no encontrado"));
 
-        if (!"Estudiante".equals(user.getType())) {
+        if (!("Estudiante".equals(user.getType()) || user.getRole().equals(UserRole.STUDENT))) {
             throw new RuntimeException("El usuario con cif " + cif + " no es un estudiante");
         }
 
