@@ -31,4 +31,8 @@ public class IDCardResponseDTO {
     private String surnames;
     private Set<String> degrees;
     private Set<String> faculties;
+
+    private Long selectedDegreeId;
+    private String selectedDegreeName;
+    private String selectedFacultyName;
 }

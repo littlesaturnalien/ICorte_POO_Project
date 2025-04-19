@@ -47,6 +47,10 @@ public class IDCard {
     @JoinColumn(name = "requisito_id", nullable = false)
     private Requirement requirement;
 
+    @ManyToOne
+    @JoinColumn(name = "degree_id", nullable = false)
+    private Degree selectedDegree;
+
     public IDCard(UserProfile user, String semester) {
         this.user = user;
         this.semester = semester;

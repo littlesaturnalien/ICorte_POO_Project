@@ -4,6 +4,7 @@ import org.kmryfv.icortepooproject.constants.IDCardStatus;
 import org.kmryfv.icortepooproject.constants.UserRole;
 import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
 import org.kmryfv.icortepooproject.models.UserProfile;
+import org.kmryfv.icortepooproject.repositories.IDCardRepository;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.kmryfv.icortepooproject.services.interfaces.IFacultyManagement;
@@ -21,12 +22,15 @@ public class StudentManagementImpl implements IStudentManagement {
     @Autowired
     private UserProfileRepository userProfileRepository;
 
+    @Autowired
+    private IDCardRepository idCardRepository;
+
     private final IDegreeManagement degreeManagement;
     private final IFacultyManagement facultyManagement;
     private final IUserService userService;
 
     public StudentManagementImpl(IDegreeManagement degreeManagement, IFacultyManagement facultyManagement,
-                                 IUserService userService){
+                                IUserService userService){
         this.degreeManagement = degreeManagement;
         this.facultyManagement = facultyManagement;
         this.userService = userService;
@@ -56,18 +60,10 @@ public class StudentManagementImpl implements IStudentManagement {
 
     @Override
     public List<UserProfile> getStudentsByIDCardStatus(String status) {
-        IDCardStatus parsedStatus;
+        IDCardStatus parsedStatus = IDCardStatus.changeStatus(status); // use your helper
 
-        try {
-            parsedStatus = IDCardStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Estado inválido: " + status);
-        }
-
-        // Assuming each student has at most one IDCard. Adjust if needed.
-        return userProfileRepository.findAll().stream()
+        return idCardRepository.findUsersByIDCardStatus(parsedStatus).stream()
                 .filter(user -> user.getRole().equals(UserRole.STUDENT))
-                .filter(user -> user.getIdCards().stream().anyMatch(card -> card.getStatus().equals(parsedStatus)))
                 .collect(Collectors.toList());
     }
 

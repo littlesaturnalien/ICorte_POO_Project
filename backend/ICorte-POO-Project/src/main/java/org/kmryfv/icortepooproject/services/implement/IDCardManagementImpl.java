@@ -39,7 +39,13 @@ public class IDCardManagementImpl implements IIDCardManagement {
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
 
+        Degree selectedDegree = user.getDegrees().stream()
+                .filter(degree -> degree.getDegreeId().equals(dto.getSelectedDegreeId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("La carrera seleccionada no pertenece al estudiante."));
+
         IDCard idCard = new IDCard(user, dto.getSemester());
+        idCard.setSelectedDegree(selectedDegree);
         idCard.setRequirement(requirement);
         idCard.setDeliveryAppointment(dto.getDeliveryAppointment());
         idCard.setIssueDate(java.time.LocalDate.now()); // You can adjust this logic as needed
@@ -110,6 +116,12 @@ public class IDCardManagementImpl implements IIDCardManagement {
                 .map(Faculty::getFacultyName)
                 .collect(Collectors.toSet()));
 
+        Degree selected = card.getSelectedDegree();
+        if (selected != null) {
+            dto.setSelectedDegreeId(selected.getDegreeId());
+            dto.setSelectedDegreeName(selected.getDegreeName());
+            dto.setSelectedFacultyName(selected.getFaculties().getFacultyName());
+        }
         return dto;
     }
 }
