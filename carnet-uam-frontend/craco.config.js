@@ -1,15 +1,12 @@
-const path = require('path');
-
+// craco.config.js
+const ModuleScopePluginName = 'ModuleScopePlugin';
 module.exports = {
   webpack: {
-    alias: {
-      react: path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom')
-    }
+    configure: (webpackConfig) => {
+      webpackConfig.resolve.plugins = webpackConfig.resolve.plugins.filter(
+        plugin => plugin.constructor.name !== ModuleScopePluginName
+      );
+      return webpackConfig;
+    },
   },
-  style: {
-    postcss: {
-      plugins: [require('tailwindcss'), require('autoprefixer')]
-    }
-  }
 };
