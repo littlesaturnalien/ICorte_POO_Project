@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [cif, setCif] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,24 +19,41 @@ const Login = ({ onLogin }) => {
       const userList = response.data;
 
       if (Array.isArray(userList) && userList.length > 0) {
-        onLogin(userList[0]); // Solo tomamos el primer usuario como en el backend
+        const user = userList[0];
+
+        // Obtener info extendida con rol
+        const res = await axios.get(`http://localhost:8087/uam-carnet-sys/user/byCif=${cif}`);
+        const fullUser = res.data;
+
+        // Determinar rol desde la propiedad roles
+        let role = 'student';
+        if (fullUser.roles && fullUser.roles.includes('ADMIN')) {
+          role = 'admin';
+        }
+
+        // Guardar sesión
+        localStorage.setItem('cif', cif);
+        localStorage.setItem('role', role);
+
+        // Redirigir
+        window.location.href = `/${role}/dashboard`;
+
       } else {
-        setError('No user data returned.');
+        setError('No se encontró el usuario.');
       }
     } catch (err) {
       console.error(err);
       if (err.response) {
-        setError(err.response.data); // Muestra mensaje de error del backend
+        setError(err.response.data);
       } else {
-        setError('No se logró iniciar sesión. Por favor intente de nuevo.');
+        setError('No se logró iniciar sesión. Intente de nuevo.');
       }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg gradient-to-br from-blue-700 to-blue-400 px-4">
-      <form className="bg-white p-8 rounded-2x1 shadow-2x1 w-full max-w-sm" 
-      onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-400 px-4">
+      <form className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm" onSubmit={handleSubmit}>
         <h2 className="text-xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
 
         {error && (
@@ -58,7 +75,6 @@ const Login = ({ onLogin }) => {
         </div>
 
         <div className="mb-6">
-          <label className="block text-gray-700 mb-1" htmlFor="password">Contraseña</label>
           <input
             id="password"
             type="password"
