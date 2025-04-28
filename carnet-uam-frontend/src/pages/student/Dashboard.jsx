@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import StudentLayout from '../../layouts/StudentLayout';
 
 const StudentDashboard = () => {
@@ -58,19 +59,26 @@ const StudentDashboard = () => {
           <h2 className="text-xl font-semibold mb-2">📘 Información Personal</h2>
           <p><strong>CIF:</strong> {student.cif}</p>
           <p><strong>Teléfono:</strong> {student.phoneNumber || 'No registrado'}</p>
-          <p><strong>Carrera:</strong> {student.degrees?.[0] || 'No registrada'}</p>
-          <p><strong>Facultad:</strong> {student.faculties?.[0] || 'No registrada'}</p>
+          <p><strong>Carrera:</strong> {student.degrees?.[0]?.degreeName || 'No registrada'}</p>
+          <p><strong>Facultad:</strong> {student.faculties?.[0]?.facultyName || 'No registrada'}</p>
         </section>
 
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-2">🪪 Estado del Carnet</h2>
           {idCard ? (
             <div>
-              <p><strong>Estado:</strong> {idCard.status}</p>
-              <p><strong>Cita de Entrega:</strong> {idCard.deliveryAppointment || 'No asignada'}</p>
+              <p className="text-blue-600">Solicitud en proceso (Estado: {idCard.status})</p>
             </div>
           ) : (
-            <p className="text-yellow-600">No has solicitado un carnet aún.</p>
+            <div className="flex items-center space-x-4">
+              <p className="text-yellow-600">No has solicitado un carnet aún.</p>
+              <Link
+                to="/student/requestid"
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Solicitar Carnet
+              </Link>
+            </div>
           )}
         </section>
 

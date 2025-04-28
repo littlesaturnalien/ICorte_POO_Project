@@ -10,6 +10,7 @@ import Login from './pages/Login';
 // Estudiante
 import StudentDashboard from './pages/student/Dashboard';
 import StudentProfile from './pages/student/Profile';
+import RequestID from './pages/student/RequestID';
 
 // Admin
 import AdminDashboard from './pages/admin/Dashboard';
@@ -38,6 +39,15 @@ function App() {
           element={
             <ProtectedRoute role="student">
               <StudentProfile />
+            </ProtectedRoute>
+          }
+        />
+        {/* ✅ Ruta para solicitar ID */}
+        <Route
+          path="/student/requestid"
+          element={
+            <ProtectedRoute role="student">
+              <RequestID />
             </ProtectedRoute>
           }
         />
