@@ -60,13 +60,13 @@ public class DegreeManagementImpl implements IDegreeManagement {
 
 
     @Override
-    public DegreeResponseDTO updateDegree(Degree request) {
-        Degree degree = degreeRepository.findById(request.getDegreeId())
+    public DegreeResponseDTO updateDegree(Long id, DegreeRequestDTO request) {
+        Degree degree = degreeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se pudo actualizar. Carrera con id "
-                        + request.getDegreeId() + " no existe."));
+                        + id + " no existe."));
 
-        Faculty faculty = facultyRepository.findById(request.getFaculties().getFacultyId())
-                .orElseThrow(() -> new EntityNotFoundException("Facultad con id " + request.getFaculties().getFacultyId() + " no encontrada."));
+        Faculty faculty = facultyRepository.findById(request.getFacultyId())
+                .orElseThrow(() -> new EntityNotFoundException("Facultad con id " + request.getFacultyId() + " no encontrada."));
 
         degree.setDegreeName(request.getDegreeName());
         degree.setFaculties(faculty);

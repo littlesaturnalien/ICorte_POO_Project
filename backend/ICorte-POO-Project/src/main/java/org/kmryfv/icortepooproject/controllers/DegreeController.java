@@ -47,9 +47,8 @@ public class DegreeController {
     }
 
     @PutMapping("/{id}")
-    public DegreeResponseDTO updateDegree(@PathVariable Long id, @Valid @RequestBody Degree updatedDegree) {
-        updatedDegree.setDegreeId(id);
-        return degreeService.updateDegree(updatedDegree);
+    public DegreeResponseDTO updateDegree(@PathVariable Long id, @Valid @RequestBody DegreeRequestDTO updatedDegree) {
+        return degreeService.updateDegree(id, updatedDegree);
     }
 
     @DeleteMapping("/{id}")

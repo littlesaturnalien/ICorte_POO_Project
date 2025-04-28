@@ -14,7 +14,7 @@ public interface IDegreeManagement {
 
     DegreeResponseDTO getDegreeById(Long id);
 
-    DegreeResponseDTO updateDegree(Degree request);
+    DegreeResponseDTO updateDegree(Long id, DegreeRequestDTO request);
 
     void deleteDegree(Long id);
 
