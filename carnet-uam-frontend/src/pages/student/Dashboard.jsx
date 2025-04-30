@@ -20,13 +20,24 @@ const StudentDashboard = () => {
           axios.get('http://localhost:8087/uam-carnet-sys/picture'),
           axios.get('http://localhost:8087/uam-carnet-sys/requirement'),
         ]);
+        console.log('respuesta studentRes.data:', stuRes.data);
+
 
         // Extraer el objeto Student real (ResponseApiDTO.data[0] o directo)
         const payload = stuRes.data;
-        const studentObj = payload.data
-          ? payload.data[0]
-          : payload;
+        let studentObj;
+        if (payload.data !== undefined) {
+          //si es un array, toma el primero elemento, si es un objeto, lo toma directamente
+          studentObj = Array.isArray(payload.data)
+            ? payload.data[0]
+            : payload.data;
+        } else {
+          studentObj = payload;
+        }
         setStudent(studentObj);
+        console.log('payload:', payload);
+        console.log('studentObj:', studentObj);
+
 
         // Buscar ID card, picture y requirement por cif directamente
         setIdCard(idcRes.data.find(c => c.cif === cif) || null);
@@ -59,8 +70,8 @@ const StudentDashboard = () => {
           <h2 className="text-xl font-semibold mb-2">📘 Información Personal</h2>
           <p><strong>CIF:</strong> {student.cif}</p>
           <p><strong>Teléfono:</strong> {student.phoneNumber || 'No registrado'}</p>
-          <p><strong>Carrera:</strong> {student.degrees?.[0]?.degreeName || 'No registrada'}</p>
-          <p><strong>Facultad:</strong> {student.faculties?.[0]?.facultyName || 'No registrada'}</p>
+          <p><strong>Carrera:</strong> {student.degreeName || 'No registrada'}</p>
+          <p><strong>Facultad:</strong> {student.facultyName || 'No registrada'}</p>
         </section>
 
         <section className="mb-6">

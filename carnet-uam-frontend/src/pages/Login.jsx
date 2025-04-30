@@ -52,15 +52,35 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-400 px-4">
-      <form className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm" onSubmit={handleSubmit}>
-        <h2 className="text-xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
+    <div className="min-h-screen bg-[#0099A8] flex flex-col">
+      {/* Barra superior blanca con logos */}
+      <div className="w-full bg-white py-3 px-6 flex justify-between items-center shadow">
+        <img
+          src="/images/idkeeperlogo.jpeg"
+          alt="ID Keeper Logo"
+          className="h-10 object-contain"
+        />
+        <img
+          src="/images/logo-uam-2.png"
+          alt="Logo UAM"
+          className="h-10 object-contain"
+        />
+      </div>
 
-        {error && (
-          <div className="mb-4 text-red-600 text-sm text-center bg-red-100 py-2 rounded">
-            {error}
-          </div>
-        )}
+      <div className="flex-grow flex items-center justify-center px-4">
+        <form
+          className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm"
+          onSubmit={handleSubmit}
+        >
+          <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
+            Iniciar Sesión
+          </h2>
+
+          {error && (
+            <div className="mb-4 text-red-600 text-sm text-center bg-red-100 py-2 rounded">
+              {error}
+            </div>
+          )}
 
         <div className="mb-4">
           <input
@@ -93,6 +113,7 @@ const Login = () => {
           Iniciar Sesión
         </button>
       </form>
+    </div>
     </div>
   );
 };

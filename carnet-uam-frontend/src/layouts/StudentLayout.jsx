@@ -9,7 +9,7 @@ const StudentLayout = ({ children }) => {
 
   return (
     <div>
-      <nav className="bg-blue-700 text-white px-6 py-4 flex justify-between items-center shadow">
+      <nav className="bg-[#0099A8] text-white px-6 py-4 flex justify-between items-center shadow">
         <div className="flex space-x-6">
           <Link to="/student/dashboard" className="hover:underline">🏠 Dashboard</Link>
           <Link to="/student/profile" className="hover:underline">👤 Perfil</Link>

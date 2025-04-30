@@ -109,7 +109,7 @@ const RequestIDCard = () => {
             <label className="block font-medium mb-1">Carrera</label>
             <input
               type="text"
-              value={student.degrees?.[0]?.degreeName || ''}
+              value={student.degreeName || ''}
               disabled
               className="w-full border rounded p-2 bg-gray-100"
             />
@@ -155,7 +155,7 @@ const RequestIDCard = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            className="w-full bg-[#0099A8] text-white py-2 rounded hover:bg-blue-700"
           >
             Enviar Solicitud
           </button>
