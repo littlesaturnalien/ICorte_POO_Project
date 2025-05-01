@@ -2,6 +2,7 @@ package org.kmryfv.icortepooproject.services.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.kmryfv.icortepooproject.dto.FacultyRequestDTO;
+import org.kmryfv.icortepooproject.dto.FacultyResponseDTO;
 import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.repositories.FacultyRepository;
 import org.kmryfv.icortepooproject.services.interfaces.IFacultyManagement;
@@ -21,10 +22,11 @@ public class FacultyManagementImpl implements IFacultyManagement {
     }
 
     @Override
-    public Faculty save(FacultyRequestDTO facultyDTO) {
+    public FacultyResponseDTO save(FacultyRequestDTO facultyDTO) {
         Faculty faculty = new Faculty();
         faculty.setFacultyName(facultyDTO.getFacultyName());
-        return facultyRepository.save(faculty);
+        facultyRepository.save(faculty);
+        return new FacultyResponseDTO(faculty.getFacultyId(), faculty.getFacultyName());
     }
 
     @Override
@@ -33,18 +35,20 @@ public class FacultyManagementImpl implements IFacultyManagement {
     }
 
     @Override
-    public Faculty getById(Long id) {
-        return facultyRepository.findById(id)
+    public FacultyResponseDTO getById(Long id) {
+        Faculty faculty = facultyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("La facultad con id " + id + " no fue encontrada."));
+        return new FacultyResponseDTO(faculty.getFacultyId(), faculty.getFacultyName());
     }
 
     @Override
-    public Faculty update(Faculty faculty) {
+    public FacultyResponseDTO update(Faculty faculty) {
         if (!facultyRepository.existsById(faculty.getFacultyId())) {
             throw new EntityNotFoundException("No se puede actualizar. La facultad con id "
                     + faculty.getFacultyId() + " no existe.");
         }
-        return facultyRepository.save(faculty);
+        facultyRepository.save(faculty);
+        return new FacultyResponseDTO(faculty.getFacultyId(), faculty.getFacultyName());
     }
 
     @Override
@@ -61,8 +65,9 @@ public class FacultyManagementImpl implements IFacultyManagement {
     }
 
     @Override
-    public Faculty getByName(String facultyName) {
-        return facultyRepository.findByFacultyName(facultyName)
+    public FacultyResponseDTO getByName(String facultyName) {
+        Faculty faculty = facultyRepository.findByFacultyName(facultyName)
                 .orElseThrow(() -> new EntityNotFoundException("Facultad con el nombre " + facultyName + " no fue encontrada."));
+        return new FacultyResponseDTO(faculty.getFacultyId(), faculty.getFacultyName());
     }
 }

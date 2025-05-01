@@ -2,6 +2,7 @@ package org.kmryfv.icortepooproject.controllers;
 
 import jakarta.validation.Valid;
 import org.kmryfv.icortepooproject.dto.FacultyRequestDTO;
+import org.kmryfv.icortepooproject.dto.FacultyResponseDTO;
 import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.services.interfaces.IFacultyManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class FacultyController {
 
     // 2. Get by ID
     @GetMapping("/{id}")
-    public Faculty getFacultyById(@PathVariable Long id) {
+    public FacultyResponseDTO getFacultyById(@PathVariable Long id) {
         return facultyService.getById(id);
     }
 
@@ -40,19 +41,19 @@ public class FacultyController {
 
     // 4. Get faculty by name
     @GetMapping("/byName/{name}")
-    public Faculty getFacultyByName(@PathVariable String name) {
+    public FacultyResponseDTO getFacultyByName(@PathVariable String name) {
         return facultyService.getByName(name);
     }
 
     // 5. Create new faculty
     @PostMapping
-    public Faculty createFaculty(@RequestBody FacultyRequestDTO facultyDTO) {
+    public FacultyResponseDTO createFaculty(@RequestBody FacultyRequestDTO facultyDTO) {
         return facultyService.save(facultyDTO);
     }
 
     // 6. Update existing faculty
     @PutMapping("/{id}")
-    public Faculty updateFaculty(@PathVariable Long id, @Valid @RequestBody Faculty updatedFaculty) {
+    public FacultyResponseDTO updateFaculty(@PathVariable Long id, @Valid @RequestBody Faculty updatedFaculty) {
         updatedFaculty.setFacultyId(id);
         return facultyService.update(updatedFaculty);
     }
