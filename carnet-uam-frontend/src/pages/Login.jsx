@@ -44,13 +44,13 @@ const Login = () => {
       console.log('👤 Perfil final:', profile);
       const roleStr = String(profile.role).toLowerCase(); // 'student', 'admin', 'superadmin', etc.
       console.log('🎯 roleStr calculado:', roleStr);
-      const navRole = roleStr === 'superadmin' ? 'admin' : roleStr;
+      //const navRole = roleStr === 'superadmin' ? 'admin' : roleStr;
 
       localStorage.setItem('cif', cif);
       localStorage.setItem('role', roleStr);
 
-      console.log('⏩ Navegando in-app a', `/${navRole}/dashboard`);
-      navigate(`/${navRole}/dashboard`, { replace: true });
+      console.log('⏩ Navegando in-app a', `/${roleStr}/dashboard`);
+      navigate(`/${roleStr}/dashboard`, { replace: true });
 
     } catch (err) {
       console.error('❌ Error en handleSubmit:', err);

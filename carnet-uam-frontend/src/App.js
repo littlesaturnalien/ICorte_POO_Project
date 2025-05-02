@@ -17,6 +17,9 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminStudents from './pages/admin/Students';
 
+//Superadmin
+import SuperadminDashboard from "./pages/superadmin/Dashboard";
+
 function App() {
   return (
     <Router>
@@ -29,7 +32,7 @@ function App() {
         <Route
           path="/student/dashboard"
           element={
-            <ProtectedRoute role="student">
+            <ProtectedRoute roles={['student', 'superadmin']}>
               <StudentDashboard />
             </ProtectedRoute>
           }
@@ -37,7 +40,7 @@ function App() {
         <Route
           path="/student/profile"
           element={
-            <ProtectedRoute role="student">
+            <ProtectedRoute roles={['student', 'superadmin']}>
               <StudentProfile />
             </ProtectedRoute>
           }
@@ -46,7 +49,7 @@ function App() {
         <Route
           path="/student/requestid"
           element={
-            <ProtectedRoute role="student">
+            <ProtectedRoute roles={['student', 'superadmin']}>
               <RequestID />
             </ProtectedRoute>
           }
@@ -78,7 +81,13 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+          <Route
+              path="/superadmin/dashboard"
+              element={
+                  <ProtectedRoute roles={['superadmin']}>
+                      <SuperadminDashboard />
+                  </ProtectedRoute>}
+          />
         {/* ✅ Cualquier otra ruta te lleva al login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
