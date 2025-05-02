@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
-    List<UserDataDTO> authenticate(LoginRequestDTO loginRequest);
+    Object authenticate(LoginRequestDTO loginRequest);
     boolean isAuthorized(UserDataDTO user);
+    boolean isAuthorized(UserProfileResponseDTO user);
     Optional<UserProfile> findByCif(String cif);
     void updateRole(String cif, UserRole role);
     UserProfile update(UserProfile user);

@@ -12,13 +12,8 @@ import java.util.Set;
 @Table(name = "perfil_usuario")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserProfile {
-
-    @Id
-    @Column(name = "cif", unique = true, nullable = false)
-    private String cif;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserProfile extends BaseUserCredentials {
 
     @Column(name = "nombres", nullable = false)
     private String names;
@@ -63,7 +58,20 @@ public class UserProfile {
     private Set<IDCard> idCards;
 
     public UserProfile(String cif, String names, String surnames, String email, UserRole role, String type) {
-        this.cif = cif;
+        super(cif);
+        this.names = names;
+        this.surnames = surnames;
+        this.email = email;
+        this.role = role;
+        this.type = type;
+    }
+
+    public UserProfile(String cif, String password) {
+        super(cif, password);
+    }
+
+    public UserProfile(String cif, String password, String names, String surnames, String email, UserRole role, String type) {
+        super(cif, password);
         this.names = names;
         this.surnames = surnames;
         this.email = email;

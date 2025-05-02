@@ -13,6 +13,7 @@ import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.api.ApiManager;
 import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,17 +27,30 @@ public class UserServiceImpl implements IUserService {
     private UserProfileRepository userProfileRepository;
 
     private final ApiManager api;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(ApiManager api) {
+    public UserServiceImpl(ApiManager api, PasswordEncoder passwordEncoder) {
         this.api = api;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public List<UserDataDTO> authenticate(LoginRequestDTO loginRequest) {
+    public Object authenticate(LoginRequestDTO loginRequest) {
         String cif = loginRequest.getCif();
         String password = loginRequest.getPassword();
-        return api.userAuthenticationManager(cif, password);
+        try {
+            var online = api.userAuthenticationManager(cif, password);
+            var profile = findByCif(cif).get();
+            profile.setPassword(passwordEncoder.encode(password));
+            userProfileRepository.save(profile);
+            return online;
+        } catch (Exception e) {
+            return findByCif(cif)
+                    .filter(u -> passwordEncoder.matches(password, u.getPassword()))
+                    .map(this::toResponseDTO)
+                    .orElseThrow(() -> new RuntimeException("Credenciales inválidas (offline)"));
+        }
     }
 
     @Override
@@ -47,6 +61,21 @@ public class UserServiceImpl implements IUserService {
         if (user.getRole() == UserRole.STUDENT) return true;
         if (user.getRole() == UserRole.BLOCKED) {
             return findByCif(user.getCIF())
+                    .map(UserProfile::getRole)
+                    .filter(role -> role != UserRole.BLOCKED)
+                    .isPresent();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isAuthorized(UserProfileResponseDTO user) {
+        if (user.getRole() == null) return false;
+        if (user.getRole().equalsIgnoreCase(String.valueOf(UserRole.SUPERADMIN))) return true;
+        if (user.getRole().equalsIgnoreCase(String.valueOf(UserRole.ADMIN))) return true;
+        if (user.getRole().equalsIgnoreCase(String.valueOf(UserRole.STUDENT))) return true;
+        if (user.getRole().equalsIgnoreCase(String.valueOf(UserRole.BLOCKED))) {
+            return findByCif(user.getCif())
                     .map(UserProfile::getRole)
                     .filter(role -> role != UserRole.BLOCKED)
                     .isPresent();

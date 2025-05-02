@@ -2,10 +2,12 @@ package org.kmryfv.icortepooproject.controllers;
 
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
+import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,25 +17,38 @@ import java.util.List;
 public class UserController {
     private final IUserService userService;
     private final IDegreeManagement degreeManagement;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserController(IUserService userService, IDegreeManagement degreeManagement) {
+    public UserController(IUserService userService, IDegreeManagement degreeManagement, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.degreeManagement = degreeManagement;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
         try {
-            List<UserDataDTO> userData = userService.authenticate(loginRequest);
-            if (userData == null || userData.isEmpty()) {
+            var userData = userService.authenticate(loginRequest);
+            if (userData == null) {
                 return ResponseEntity.status(401).body("No se encontraron datos de usuario");
             }
-            UserDataDTO user = userData.get(0);
-            if (!userService.isAuthorized(user)) {
-                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
+            if (userData instanceof List<?>){
+                List<UserDataDTO> lista = (List<UserDataDTO>) userData;
+                UserDataDTO user = lista.get(0);
+                if (!userService.isAuthorized(user)) {
+                    return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
+                }
+                return ResponseEntity.ok(userData);
             }
-            return ResponseEntity.ok(userData);
+
+            if (userData instanceof UserProfileResponseDTO) {
+                UserProfileResponseDTO user = (UserProfileResponseDTO) userData;
+                if (!userService.isAuthorized(user)) {
+                    return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
+                } return ResponseEntity.ok(user);
+            }
+            return ResponseEntity.status(500).body("Tipo de respuesta inesperado: " + userData.getClass().getSimpleName());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al autenticar: " + e.getMessage());
         }
@@ -138,6 +153,23 @@ public class UserController {
                 userProfile.setPhoneNumber(number);
                 userService.update(userProfile);
                 return ResponseEntity.ok("Número telefónico actualizado con éxito");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error para agregar número: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping("/cif={cif}/setPassword={password}")
+    public ResponseEntity<?> setPassword(@PathVariable("cif") String cif, @PathVariable("password") String password){
+        try {
+            var user = userService.findByCif(cif.toUpperCase());
+            if (user.isEmpty()) {
+                return ResponseEntity.status(401).body("No se encontró al estudiante con cif: " + cif.toUpperCase());
+            } else {
+                var userProfile = user.get();
+                userProfile.setPassword(passwordEncoder.encode(password));
+                userService.update(userProfile);
+                return ResponseEntity.ok("Contraseña actualizada con éxito");
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error para agregar número: " + e.getMessage());

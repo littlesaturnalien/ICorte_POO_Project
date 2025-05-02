@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.kmryfv.icortepooproject.constants.Superadmin.*;
+import static org.kmryfv.icortepooproject.constants.Superadmin.SUPERADMIN_CIF;
+import static org.kmryfv.icortepooproject.constants.Superadmin.SUPERADMIN_PASSWORD_HASH;
 import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_CIF;
+import static org.kmryfv.icortepooproject.constants.Superadmin2.SUPERADMIN2_PASSWORD_HASH;
 
 @Service
 public class RoleAssignmentImpl implements IRoleAssignment {
@@ -28,9 +30,19 @@ public class RoleAssignmentImpl implements IRoleAssignment {
     private void initializeRoles() {
         if (userProfileRepository.findById(SUPERADMIN_CIF).isEmpty()) {
             userProfileRepository.save(Superadmin.superAdmin);
+        } else {
+            var user = userProfileRepository.findById(SUPERADMIN_CIF).get();
+            if (user.getPassword() == null){
+                user.setPassword(SUPERADMIN_PASSWORD_HASH);
+            }
         }
         if (userProfileRepository.findById(SUPERADMIN2_CIF).isEmpty()) {
             userProfileRepository.save(Superadmin2.superAdmin);
+        } else {
+            var user = userProfileRepository.findById(SUPERADMIN2_CIF).get();
+            if (user.getPassword() == null){
+                user.setPassword(SUPERADMIN2_PASSWORD_HASH);
+            }
         }
     }
 
