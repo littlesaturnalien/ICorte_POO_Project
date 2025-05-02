@@ -53,18 +53,19 @@ function App() {
         />
 
         {/* ✅ Rutas para admin */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+          // Rutas de admin que ahora aceptan admin y superadmin
+          <Route
+              path="/admin/dashboard"
+              element={
+                  <ProtectedRoute roles={['admin','superadmin']}>
+                      <AdminDashboard />
+                  </ProtectedRoute>
+              }
+          />
         <Route
           path="/admin/users"
           element={
-            <ProtectedRoute role="admin">
+            <ProtectedRoute roles={['admin','superadmin']}>
               <AdminUsers />
             </ProtectedRoute>
           }
@@ -72,7 +73,7 @@ function App() {
         <Route
           path="/admin/students"
           element={
-            <ProtectedRoute role="admin">
+            <ProtectedRoute roles={['admin','superadmin']}>
               <AdminStudents />
             </ProtectedRoute>
           }
