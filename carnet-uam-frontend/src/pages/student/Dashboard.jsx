@@ -105,7 +105,7 @@ const StudentDashboard = () => {
               <p className="text-blue-600">Solicitud en proceso (Estado: {idCard.status})</p>
             </div>
           ) : (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between">
               <p className="text-yellow-600">No has solicitado un carnet aún.</p>
               <Link
                 to="/student/requestid"
@@ -136,24 +136,6 @@ const StudentDashboard = () => {
           )}
         </section>
 
-        <section>
-          <h2 className="text-xl font-semibold mb-2">📎 Requisitos</h2>
-          {requirement ? (
-            <p>
-              <strong>Comprobante de pago:</strong>{' '}
-              <a
-                className="text-blue-600 underline"
-                href={requirement.paymentProofUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Ver Comprobante
-              </a>
-            </p>
-          ) : (
-            <p className="text-yellow-600">Aún no has subido tus requisitos.</p>
-          )}
-        </section>
       </div>
     </StudentLayout>
   );
