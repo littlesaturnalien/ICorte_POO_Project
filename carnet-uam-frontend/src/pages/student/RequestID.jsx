@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { format, parse } from 'date-fns';
 import StudentLayout from '../../layouts/StudentLayout';
 
 const RequestIDCard = () => {
@@ -88,47 +89,81 @@ const RequestIDCard = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    // Validaciones
     if (!form.selectedDegreeId) {
       return alert('Por favor selecciona una carrera.');
     }
     if (!form.academicYear) {
       return alert('Por favor selecciona el año de la carrera.');
     }
+    if (!form.photoAppointment || !form.photoUrl || !form.paymentProofUrl) {
+      return alert('Todos los campos son obligatorios.');
+    }
 
     try {
-      /* 1. Fotografía */
+      // 1) Crear fotografía
+      console.log('▶️ creando picture…', {
+        cif, photoAppointment: form.photoAppointment, photoUrl: form.photoUrl
+      });
       const picRes = await axios.post(
-          'http://localhost:8087/uam-carnet-sys/picture',
-          { cif, photoAppointment: form.photoAppointment, photoUrl: form.photoUrl }
+        'http://localhost:8087/uam-carnet-sys/picture',
+        {
+          cif,
+          photoAppointment: form.photoAppointment,
+          photoUrl: form.photoUrl,
+        }
       );
       const pictureId = picRes.data.data?.id ?? picRes.data.id;
+      console.log('✅ pictureId =', pictureId);
 
-      /* 2. Requisitos */
+      // 2) Crear requisito
+      console.log('▶️ creando requirement…', { cif, pictureId, paymentProofUrl: form.paymentProofUrl });
       const reqRes = await axios.post(
-          'http://localhost:8087/uam-carnet-sys/requirement',
-          { cif, pictureId, paymentProofUrl: form.paymentProofUrl }
+        'http://localhost:8087/uam-carnet-sys/requirement',
+        {
+          cif,
+          pictureId,
+          paymentProofUrl: form.paymentProofUrl,
+        }
       );
       const requirementId = reqRes.data.data?.id ?? reqRes.data.id;
+      console.log('✅ requirementId =', requirementId);
 
-      /* 3. Solicitud de carnet */
+       // — 3) FORMATEAR FECHA —
+    // Si tu input es type="datetime-local", viene un ISO "YYYY-MM-DDTHH:mm"
+    // Si tu input es un DatePicker que muestra "dd/MM/yyyy hh:mm a", cámbialo:
+    let appointment = form.photoAppointment;
+    // ejemplo para MUI DateTimePicker: "05/05/2025 04:52 PM"
+    if (appointment.includes('/')) {
+      const dt = parse(appointment, 'dd/MM/yyyy hh:mm a', new Date());
+      appointment = format(dt, 'dd-MM-yyyy HH:mm');
+    } else {
+      // input nativo → "2025-05-05T16:52"
+      const [date, time] = appointment.split('T');
+      const [y, m, d] = date.split('-');
+      appointment = `${d}-${m}-${y} ${time}`;
+    }
+    console.log('⌚ formatted deliveryAppointment =', appointment);
+
+      // 4) Solicitar carnet
       await axios.post(
-          'http://localhost:8087/uam-carnet-sys/idcard',
-          {
-            cif,
-            semester: form.semester,
-            academicYear: form.academicYear,
-            requirementId,
-            degreeId: form.selectedDegreeId,
-            deliveryAppointment: form.photoAppointment,
-          }
+        'http://localhost:8087/uam-carnet-sys/idcard',
+        {
+          cif,
+          semester: form.semester,
+          selectedDegreeId: form.selectedDegreeId,
+          requirementId,
+          deliveryAppointment: appointment,
+        }
       );
 
+      // Redirige y hace refetch en el dashboard
       navigate('/student/dashboard', { replace: true });
     } catch (err) {
-      console.error('Error al solicitar carnet:', err);
-      alert('Hubo un error al procesar tu solicitud.');
+      console.error('Error al procesar solicitud:', err);
+      alert('Hubo un error al procesar tu solicitud. Intenta de nuevo.');
     }
-  };
+  }; 
 
   /* ───────────── Render ───────────── */
   return (

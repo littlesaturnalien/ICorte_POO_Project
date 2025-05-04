@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { format, parseISO } from 'date-fns';
 import StudentLayout from '../../layouts/StudentLayout';
+
+function formatDate(isoString) {
+  if (!isoString) return '';
+  return format(parseISO(isoString), 'dd-MM-yyyy HH:mm');
+}
 
 const StudentDashboard = () => {
   const [student, setStudent] = useState(null);
@@ -104,22 +110,22 @@ const StudentDashboard = () => {
         </section>
 
         <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">📷 Fotografía</h2>
-          {picture ? (
-            <>
-              <p><strong>Fecha:</strong> {picture.photoAppointment}</p>
-              <a
-                className="text-blue-600 underline"
-                href={picture.photoUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Ver Foto
-              </a>
-            </>
-          ) : (
-            <p className="text-yellow-600">Aún no has agendado una cita para tu foto.</p>
-          )}
+            <h2 className="text-xl font-semibold mb-2">📷 Fotografía</h2>
+            { idCard?.deliveryAppointment ? (
+        <p>Cita agendada: {formatDate(idCard.deliveryAppointment)}</p>
+         ) : picture ? (
+        <>
+          <p>Foto subida: {formatDate(picture.uploadedAt)}</p>
+          <a href={picture.photoUrl} target="_blank" rel="noreferrer">
+            Ver imagen
+          </a>
+        </>
+        ) : (
+        <p className="text-yellow-600">
+          Aún no has agendado cita ni subido foto.
+        </p>
+      )
+  }
         </section>
 
       </div>
