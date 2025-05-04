@@ -22,7 +22,7 @@ public class Picture {
     @JoinColumn(name = "cif", nullable = false)
     private UserProfile user;
 
-    @Column(name = "toma_de_foto")
+    @Column(name = "toma_de_foto", unique = true)
     private LocalDateTime photoAppointment;
 
     @Column(name = "url_foto", nullable = false)

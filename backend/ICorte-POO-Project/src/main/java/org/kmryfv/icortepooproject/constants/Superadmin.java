@@ -14,7 +14,7 @@ public class Superadmin {
     public static final String SUPERADMIN_PASSWORD_HASH =
             new BCryptPasswordEncoder().encode(SUPERADMIN_PIN);
 
-    public static UserProfile superAdmin = new UserProfile(SUPERADMIN_CIF, SUPERADMIN_NAME,
-                SUPERADMIN_SURNANME, SUPERADMIN_EMAIl, UserRole.SUPERADMIN,
+    public static UserProfile superAdmin = new UserProfile(SUPERADMIN_CIF, SUPERADMIN_PASSWORD_HASH,
+            SUPERADMIN_NAME, SUPERADMIN_SURNANME, SUPERADMIN_EMAIl, UserRole.SUPERADMIN,
                 SUPERADMIN_TYPE);
 }

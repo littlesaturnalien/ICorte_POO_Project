@@ -2,13 +2,11 @@ package org.kmryfv.icortepooproject.services.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.kmryfv.icortepooproject.constants.UserRole;
-import org.kmryfv.icortepooproject.dto.IDCardSimplifiedDTO;
-import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
-import org.kmryfv.icortepooproject.dto.UserDataDTO;
-import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
+import org.kmryfv.icortepooproject.dto.*;
 import org.kmryfv.icortepooproject.models.Degree;
 import org.kmryfv.icortepooproject.models.Faculty;
 import org.kmryfv.icortepooproject.models.UserProfile;
+import org.kmryfv.icortepooproject.repositories.DegreeRepository;
 import org.kmryfv.icortepooproject.repositories.UserProfileRepository;
 import org.kmryfv.icortepooproject.services.api.ApiManager;
 import org.kmryfv.icortepooproject.services.interfaces.IUserService;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +24,9 @@ public class UserServiceImpl implements IUserService {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
+
+    @Autowired
+    private DegreeRepository degreeRepository;
 
     private final ApiManager api;
     private final PasswordEncoder passwordEncoder;
@@ -36,21 +38,26 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Object authenticate(LoginRequestDTO loginRequest) {
+    public UserProfileResponseDTO authenticateDB(LoginRequestDTO loginRequest) {
         String cif = loginRequest.getCif();
         String password = loginRequest.getPassword();
-        try {
-            var online = api.userAuthenticationManager(cif, password);
-            var profile = findByCif(cif).get();
-            profile.setPassword(passwordEncoder.encode(password));
-            userProfileRepository.save(profile);
-            return online;
-        } catch (Exception e) {
-            return findByCif(cif)
+        return findByCif(cif)
                     .filter(u -> passwordEncoder.matches(password, u.getPassword()))
                     .map(this::toResponseDTO)
-                    .orElseThrow(() -> new RuntimeException("Credenciales inválidas (offline)"));
+                    .orElseThrow(() -> new RuntimeException("Credenciales inválidas (DB)"));
+    }
+
+    @Override
+    public List<UserDataDTO> authenticateAPI(LoginRequestDTO loginRequest){
+        String cif = loginRequest.getCif();
+        String password = loginRequest.getPassword();
+        var userData = api.userAuthenticationManager(cif, password);
+        var profile = findByCif(cif).get();
+        if (profile.getPassword().isEmpty()){
+            profile.setPassword(passwordEncoder.encode(password));
+            userProfileRepository.save(profile);
         }
+        return userData;
     }
 
     @Override
@@ -81,6 +88,22 @@ public class UserServiceImpl implements IUserService {
                     .isPresent();
         }
         return false;
+    }
+
+    @Override
+    public UserProfileResponseDTO create(UserProfileRequestDTO user) {
+        Set<Degree> degrees = user.getDegrees().stream().map(degreeId -> degreeRepository.findById(degreeId)
+                .orElseThrow(() -> new EntityNotFoundException("La carrera con id " + degreeId + " no existe")))
+                .collect(Collectors.toSet());
+        Set<Faculty> faculties = degrees.stream().map(Degree::getFaculties).collect(Collectors.toSet());
+        var userProfile = new UserProfile(user.getCif(),
+                passwordEncoder.encode(user.getPassword()),
+                user.getNames().toUpperCase(),
+                user.getSurnames().toUpperCase(),
+                user.getEmail().toLowerCase(), user.getRole(),
+                user.getType(), degrees, faculties);
+        userProfileRepository.save(userProfile);
+        return toResponseDTO(userProfile);
     }
 
     @Override

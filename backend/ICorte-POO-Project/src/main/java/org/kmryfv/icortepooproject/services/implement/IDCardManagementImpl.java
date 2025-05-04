@@ -12,6 +12,7 @@ import org.kmryfv.icortepooproject.services.interfaces.IIDCardManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,14 @@ public class IDCardManagementImpl implements IIDCardManagement {
         UserProfile user = userProfileRepository.findById(dto.getCif())
                 .orElseThrow(() -> new EntityNotFoundException("Usuario con CIF " + dto.getCif() + " no encontrado"));
 
+        int currentYear = LocalDate.now().getYear();
+        if (idCardRepository.existsByUserAndYear(user, currentYear) ) {
+            throw new IllegalStateException(
+                    "El estudiante con CIF " + user.getCif()
+                            + " ya tiene un carnet emitido en el año " + currentYear
+            );
+        }
+        
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
 

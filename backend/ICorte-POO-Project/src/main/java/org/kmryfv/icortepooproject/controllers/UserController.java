@@ -1,16 +1,15 @@
 package org.kmryfv.icortepooproject.controllers;
 
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
-import org.kmryfv.icortepooproject.dto.UserDataDTO;
-import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
+//import org.kmryfv.icortepooproject.dto.UserDataDTO;
+import org.kmryfv.icortepooproject.dto.UserProfileRequestDTO;
+//import org.kmryfv.icortepooproject.dto.UserProfileResponseDTO;
 import org.kmryfv.icortepooproject.services.interfaces.IDegreeManagement;
 import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -29,28 +28,24 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
         try {
-            var userData = userService.authenticate(loginRequest);
-            if (userData == null) {
+            var user = userService.authenticateDB(loginRequest);
+            if (user == null) {
                 return ResponseEntity.status(401).body("No se encontraron datos de usuario");
             }
-            if (userData instanceof List<?>){
-                List<UserDataDTO> lista = (List<UserDataDTO>) userData;
-                UserDataDTO user = lista.get(0);
-                if (!userService.isAuthorized(user)) {
-                    return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
-                }
-                return ResponseEntity.ok(userData);
-            }
-
-            if (userData instanceof UserProfileResponseDTO) {
-                UserProfileResponseDTO user = (UserProfileResponseDTO) userData;
-                if (!userService.isAuthorized(user)) {
-                    return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
-                } return ResponseEntity.ok(user);
-            }
-            return ResponseEntity.status(500).body("Tipo de respuesta inesperado: " + userData.getClass().getSimpleName());
+            if (!userService.isAuthorized(user)) {
+                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
+            } return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al autenticar: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestBody UserProfileRequestDTO request){
+        try {
+            return ResponseEntity.ok(userService.create(request));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al crear nuevo usuario: " + e.getMessage());
         }
     }
 

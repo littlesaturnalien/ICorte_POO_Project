@@ -57,7 +57,8 @@ public class UserProfile extends BaseUserCredentials {
     @OneToMany(mappedBy = "user")
     private Set<IDCard> idCards;
 
-    public UserProfile(String cif, String names, String surnames, String email, UserRole role, String type) {
+    public UserProfile(String cif, String names, String surnames, String email,
+                       UserRole role, String type) {
         super(cif);
         this.names = names;
         this.surnames = surnames;
@@ -66,16 +67,25 @@ public class UserProfile extends BaseUserCredentials {
         this.type = type;
     }
 
-    public UserProfile(String cif, String password) {
-        super(cif, password);
-    }
-
-    public UserProfile(String cif, String password, String names, String surnames, String email, UserRole role, String type) {
+    public UserProfile(String cif, String password, String names, String surnames,
+                       String email, UserRole role, String type) {
         super(cif, password);
         this.names = names;
         this.surnames = surnames;
         this.email = email;
         this.role = role;
         this.type = type;
+    }
+
+    public UserProfile(String cif, String password, String names, String surnames, String email,
+                       UserRole role, String type, Set<Degree> degrees, Set<Faculty> faculties) {
+        super(cif, password);
+        this.names = names;
+        this.surnames = surnames;
+        this.email = email;
+        this.role = role;
+        this.type = type;
+        this.degrees = degrees;
+        this.faculties = faculties;
     }
 }
