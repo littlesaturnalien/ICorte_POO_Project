@@ -55,7 +55,7 @@ public class UserProfile extends BaseUserCredentials {
     private String phoneNumber;
 
     @OneToMany(mappedBy = "user")
-    private Set<IDCard> idCards;
+    private Set<IDCard> idCards = new HashSet<>();
 
     public UserProfile(String cif, String names, String surnames, String email,
                        UserRole role, String type) {

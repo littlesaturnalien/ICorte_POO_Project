@@ -44,7 +44,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
                             + " ya tiene un carnet emitido en el año " + currentYear
             );
         }
-        
+
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
 
