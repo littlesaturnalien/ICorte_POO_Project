@@ -1,6 +1,3 @@
-// src/pages/student/RequestIDCard.jsx
-
-// src/pages/student/RequestIDCard.jsx
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
