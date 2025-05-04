@@ -38,7 +38,7 @@ const StudentProfile = () => {
     <StudentLayout>
       <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
         <h1 className="text-2xl font-bold mb-4">
-          Perfil de {user.fullName}
+          Perfil de {user.names} {user.surnames}
         </h1>
 
         <section className="mb-6">
@@ -79,35 +79,16 @@ const StudentProfile = () => {
         <section>
           <h2 className="text-xl font-semibold mb-2">🎓 Carreras Actuales</h2>
           {user.degrees && user.degrees.length > 0 ? (
-            <ul className="list-disc ml-5 space-y-1">
-              {user.degrees.map((deg, idx) => {
-                const key = typeof deg === 'object' ? deg.id : `${deg}-${idx}`;
-                const label = typeof deg === 'object' ? deg.degreeName : deg;
-                return (
-                  <li key={key} className="flex justify-between items-center">
-                    {label}
-                    <button
-                      onClick={async () => {
-                        const idToRemove = typeof deg === 'object' ? deg.id : label;
-                        try {
-                          await axios.patch(
-                            `http://localhost:8087/uam-carnet-sys/user/cif=${cif}/removeDegree=${idToRemove}`
-                          );
-                          alert('Carrera eliminada');
-                        } catch (err) {
-                          console.error('Error al eliminar carrera:', err);
-                        }
-                      }}
-                      className="text-sm text-red-600 hover:underline"
-                    >
-                      Eliminar
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+              <ul className="list-disc ml-5 space-y-1">
+                {user.degrees.map((deg, idx) => {
+                  // Si llega como objeto, usa el nombre; si es string, úsalo tal cual
+                  const label = typeof deg === 'object' ? deg.degreeName : deg;
+                  const key   = typeof deg === 'object' ? deg.id : `${deg}-${idx}`;
+                  return <li key={key}>{label}</li>;
+                })}
+              </ul>
           ) : (
-            <p className="text-yellow-600">No tienes carreras activas.</p>
+              <p className="text-yellow-600">No tienes carreras activas.</p>
           )}
         </section>
       </div>
