@@ -77,15 +77,12 @@ const StudentProfile = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">🎓 Carreras Actuales</h2>
-          {user.degrees && user.degrees.length > 0 ? (
+          <h2 className="text-xl font-semibold mb-2">🎓 Carreras / Facultades</h2>
+          {user.studies?.length ? (
               <ul className="list-disc ml-5 space-y-1">
-                {user.degrees.map((deg, idx) => {
-                  // Si llega como objeto, usa el nombre; si es string, úsalo tal cual
-                  const label = typeof deg === 'object' ? deg.degreeName : deg;
-                  const key   = typeof deg === 'object' ? deg.id : `${deg}-${idx}`;
-                  return <li key={key}>{label}</li>;
-                })}
+                {user.studies.map(s => (
+                    <li key={s.degreeId}>{s.degreeName} — <span className="text-gray-500">{s.facultyName}</span></li>
+                ))}
               </ul>
           ) : (
               <p className="text-yellow-600">No tienes carreras activas.</p>

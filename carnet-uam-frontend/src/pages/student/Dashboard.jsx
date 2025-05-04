@@ -67,34 +67,20 @@ const StudentDashboard = () => {
         </h1>
 
         <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">📘 Información Académica</h2>
+          <h2 className="text-xl font-semibold mb-2">📘 Información Académica</h2>
 
-          {/* CIF y teléfono siguen igual */}
           <p><strong>CIF:</strong> {student.cif}</p>
           <p><strong>Teléfono:</strong> {student.phoneNumber || 'No registrado'}</p>
 
-          {/* Carreras */}
-          <p className="mt-2 font-semibold">Carreras:</p>
-          {student.degrees?.length ? (
+          <p className="mt-2 font-semibold">Carrera / Facultad:</p>
+          {student.studies?.length ? (
               <ul className="list-disc ml-6">
-                {student.degrees.map((deg, i) => (
-                    <li key={i}>{deg}</li>
+                {student.studies.map(s => (
+                    <li key={s.degreeId}>{s.degreeName} — <span className="text-gray-500">{s.facultyName}</span></li>
                 ))}
               </ul>
           ) : (
               <p className="text-yellow-600 ml-6">Sin carreras registradas</p>
-          )}
-
-          {/* Facultades */}
-          <p className="mt-2 font-semibold">Facultades:</p>
-          {student.faculties?.length ? (
-              <ul className="list-disc ml-6">
-                {student.faculties.map((fac, i) => (
-                    <li key={i}>{fac}</li>
-                ))}
-              </ul>
-          ) : (
-              <p className="text-yellow-600 ml-6">Sin facultades registradas</p>
           )}
         </section>
 
