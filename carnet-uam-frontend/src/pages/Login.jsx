@@ -61,6 +61,7 @@ const Login = () => {
   };
 
   return (
+<<<<<<< Updated upstream
       <div className="min-h-screen bg-[#0099A8] flex flex-col">
         {/* Barra superior blanca con logos */}
         <div className="w-full bg-white py-3 px-6 flex justify-between items-center shadow">
@@ -75,6 +76,38 @@ const Login = () => {
               className="h-10 object-contain"
           />
         </div>
+=======
+    <div className="min-h-screen bg-[#0099A8] flex flex-col">
+      {/* Barra superior blanca con logos */}
+      <div className="w-full bg-white py-3 px-6 flex justify-between items-center shadow">
+        <img
+          src="/images/idkeeperlogo.jpeg"
+          alt="ID Keeper Logo"
+          className="h-20 object-contain"
+        />
+        <img
+          src="/images/logo-uam-2.png"
+          alt="Logo UAM"
+          className="h-10 object-contain"
+        />
+      </div>
+>>>>>>> Stashed changes
+=======
+    <div className="min-h-screen bg-[#0099A8] flex flex-col">
+      {/* Barra superior blanca con logos */}
+      <div className="w-full bg-white py-3 px-6 flex justify-between items-center shadow">
+        <img
+          src="/images/idkeeperlogo.jpeg"
+          alt="ID Keeper Logo"
+          className="h-20 object-contain"
+        />
+        <img
+          src="/images/logo-uam-2.png"
+          alt="Logo UAM"
+          className="h-10 object-contain"
+        />
+      </div>
+>>>>>>> Stashed changes
 
         <div className="flex-grow flex items-center justify-center px-4">
           <form
