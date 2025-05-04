@@ -18,8 +18,7 @@ public class UserProfileResponseDTO {
     private String email;
     private String role;
     private String type;
-    private List<String> degrees;
-    private List<String> faculties;
+    private List<StudyDTO> studies;
     private String phoneNumber;
     private List<IDCardSimplifiedDTO> idCards;
 }

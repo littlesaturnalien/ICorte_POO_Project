@@ -140,13 +140,13 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserProfileResponseDTO toResponseDTO(UserProfile user) {
-        var idCards = user.getIdCards().stream()
-                .map(card -> new IDCardSimplifiedDTO(
-                        card.getSemester(),
-                        card.getYear(),
-                        card.getStatus().name(),
-                        card.getDeliveryAppointment()
-                ))
+
+        List<StudyDTO> studies = user.getDegrees().stream()
+                .map(d -> new StudyDTO(
+                        d.getDegreeId(),                // id carrera
+                        d.getDegreeName(),              // nombre carrera
+                        d.getFaculties().getFacultyId(),// id facultad
+                        d.getFaculties().getFacultyName()))
                 .toList();
 
         return new UserProfileResponseDTO(
@@ -156,14 +156,16 @@ public class UserServiceImpl implements IUserService {
                 user.getEmail(),
                 user.getRole().name(),
                 user.getType(),
-                user.getDegrees().stream()
-                        .map(Degree::getDegreeName)
-                        .collect(Collectors.toList()),
-                user.getFaculties().stream()
-                        .map(Faculty::getFacultyName)
-                        .collect(Collectors.toList()),
+                studies,                           // 👈  ahora es una sola lista
                 user.getPhoneNumber(),
-                idCards
+                user.getIdCards().stream()
+                        .map(card -> new IDCardSimplifiedDTO(
+                                card.getSemester(),
+                                card.getYear(),
+                                card.getStatus().name(),
+                                card.getDeliveryAppointment()
+                        ))
+                        .collect(Collectors.toList())
         );
     }
 }
