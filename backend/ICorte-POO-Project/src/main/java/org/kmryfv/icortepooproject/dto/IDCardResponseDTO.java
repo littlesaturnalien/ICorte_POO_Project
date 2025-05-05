@@ -36,5 +36,8 @@ public class IDCardResponseDTO {
 
     private Long requirement_id;
     private String payment_proof_url;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
+    private LocalDateTime photoAppointment;
     private String picture_url;
 }

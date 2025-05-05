@@ -130,6 +130,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
         Requirement requirement = card.getRequirement();
         dto.setRequirement_id(requirement.getRequirementId());
         dto.setPayment_proof_url(requirement.getPaymentProofUrl());
+        dto.setPhotoAppointment(requirement.getPicture().getPhotoAppointment());
         dto.setPicture_url(requirement.getPicture().getPhotoUrl());
 
         return dto;
