@@ -20,7 +20,7 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @PostMapping("/{adminCif}/promoteToAdmin")
+    @PatchMapping("/{adminCif}/promoteToAdmin")
     public ResponseEntity<?> promoteToAdmin(@PathVariable String adminCif, @RequestBody Map<String, String> cif) {
         try {
             if (!adminService.canManageRoles(adminCif)) {
@@ -34,7 +34,7 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/{adminCif}/revokeAdminRole")
+    @PatchMapping("/{adminCif}/revokeAdminRole")
     public ResponseEntity<?> revokeAdminRole(@PathVariable String adminCif, @RequestBody Map<String, String> cif){
         try {
             if (!adminService.canManageRoles(adminCif)) {

@@ -3,6 +3,7 @@ package org.kmryfv.icortepooproject.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.Check;
 import org.kmryfv.icortepooproject.constants.UserRole;
 
 import java.util.HashSet;
@@ -10,6 +11,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "perfil_usuario")
+@Check(constraints =
+        "email LIKE '%@uamv.edu.ni' OR email LIKE '%@uam.edu.ni'"
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
