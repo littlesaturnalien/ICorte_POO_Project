@@ -2,53 +2,65 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import AdminLayout from '../../layouts/AdminLayout';
+import { useNavigate } from 'react-router-dom';
 
-const statusOptions = ['ALL', 'SOLICITADO', 'EN_PROCESO', 'IMPRESO', 'ENTREGADO'];
+const statusOptions = [
+  'ALL',
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'DELIVERED',
+  'EMITTED'
+];
 
 export default function Students() {
+  const navigate = useNavigate();
   const [allStudents, setAllStudents] = useState([]);
 
-  /* filtros */
-  const [search, setSearch]           = useState('');   // cif, nombre, carrera, facultad
-  const [statusFilter, setStatus]     = useState('ALL');
+  // Filtros
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatus] = useState('ALL');
+  const [degreeFilter, setDegreeFilter] = useState('ALL');
+  const [facultyFilter, setFacultyFilter] = useState('ALL');
 
-  /* ───────────────── helpers de extracción ───────────────── */
-  const buildName  = s => s.fullName || `${s.names ?? ''} ${s.surnames ?? ''}`.trim();
-  const buildDeg   = s =>
-      s.studies?.map(st => st.degreeName).join(', ')
-      || s.degrees?.join(', ')
-      || s.degreeName
-      || '—';
-  const buildFac   = s =>
-      s.studies?.map(st => st.facultyName).join(', ')
-      || s.faculties?.join(', ')
-      || s.facultyName
-      || '—';
+  // Listas para selects
+  const [degreesList, setDegreesList] = useState([]);
+  const [facultiesList, setFacultiesList] = useState([]);
+
+  // Helpers
+  const buildName = s => (s.fullName || `${s.names ?? ''} ${s.surnames ?? ''}`).trim();
+  const buildDeg = s =>
+      s.studies?.map(st => st.degreeName).join(', ') || '—';
+  const buildFac = s =>
+      s.studies?.map(st => st.facultyName).join(', ') || '—';
   const buildState = s =>
-      s.idCardStatus
-      || (s.idCards?.length ? s.idCards[0].status : '—');
+      s.idCardStatus || (s.idCards?.length ? s.idCards[0].status : '—');
 
-  /* ───────────────── fetch ───────────────── */
+  // Fetch inicial
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get(
-            'http://localhost:8087/uam-carnet-sys/student'
-        );
-        setAllStudents(Array.isArray(data) ? data : [data]);
+        const [stuRes, degRes, facRes] = await Promise.all([
+          axios.get('http://localhost:8087/uam-carnet-sys/student'),
+          axios.get('http://localhost:8087/uam-carnet-sys/degree'),
+          axios.get('http://localhost:8087/uam-carnet-sys/faculty'),
+        ]);
+        setAllStudents(Array.isArray(stuRes.data) ? stuRes.data : [stuRes.data]);
+        setDegreesList(degRes.data.map(d => d.degreeName));
+        setFacultiesList(facRes.data.map(f => f.facultyName));
       } catch (err) {
-        console.error('Error cargando estudiantes:', err);
+        console.error('Error cargando datos:', err);
       }
     };
-    fetchStudents();
+    fetchData();
   }, []);
 
-  /* ───────────────── filtro interactivo ───────────────── */
+  // Filtrado interactivo
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return allStudents.filter(s => {
-      /* texto: coincide con cif, nombre, carrera o facultad */
+      // 1) Texto libre: CIF, nombre, carrera o facultad
       const textMatch =
           !term ||
           s.cif.toLowerCase().includes(term) ||
@@ -56,16 +68,24 @@ export default function Students() {
           buildDeg(s).toLowerCase().includes(term) ||
           buildFac(s).toLowerCase().includes(term);
 
-      /* estado carnet */
+      // 2) Estado
       const state = buildState(s);
-      const stateMatch =
-          statusFilter === 'ALL' || state === statusFilter;
+      const stateMatch = statusFilter === 'ALL' || state === statusFilter;
 
-      return textMatch && stateMatch;
+      // 3) Select carrera
+      const degreeMatch =
+          degreeFilter === 'ALL' ||
+          buildDeg(s).split(', ').includes(degreeFilter);
+
+      // 4) Select facultad
+      const facultyMatch =
+          facultyFilter === 'ALL' ||
+          buildFac(s).split(', ').includes(facultyFilter);
+
+      return textMatch && stateMatch && degreeMatch && facultyMatch;
     });
-  }, [allStudents, search, statusFilter]);
+  }, [allStudents, search, statusFilter, degreeFilter, facultyFilter]);
 
-  /* ───────────────── render ───────────────── */
   return (
       <AdminLayout>
         <div className="max-w-6xl mx-auto mt-10 p-6 bg-white rounded shadow">
@@ -80,6 +100,28 @@ export default function Students() {
                 placeholder="Buscar por CIF, nombre, carrera o facultad…"
                 className="border px-3 py-2 rounded flex-grow min-w-[200px]"
             />
+
+            <select
+                value={degreeFilter}
+                onChange={e => setDegreeFilter(e.target.value)}
+                className="border px-3 py-2 rounded"
+            >
+              <option value="ALL">Todas las carreras</option>
+              {degreesList.map(deg => (
+                  <option key={deg} value={deg}>{deg}</option>
+              ))}
+            </select>
+
+            <select
+                value={facultyFilter}
+                onChange={e => setFacultyFilter(e.target.value)}
+                className="border px-3 py-2 rounded"
+            >
+              <option value="ALL">Todas las facultades</option>
+              {facultiesList.map(fac => (
+                  <option key={fac} value={fac}>{fac}</option>
+              ))}
+            </select>
 
             <select
                 value={statusFilter}
@@ -113,16 +155,16 @@ export default function Students() {
                   <td className="p-2">{buildDeg(s)}</td>
                   <td className="p-2">{buildFac(s)}</td>
                   <td className="p-2">{buildState(s)}</td>
-                </tr>
-            ))}
-
-            {!filtered.length && (
-                <tr>
-                  <td colSpan={5} className="text-center py-4 text-gray-500">
-                    No se encontraron estudiantes que coincidan.
+                  <td className="p-2">
+                  <button
+                            onClick={() => navigate(`/admin/students/${s.cif}/idcard`)}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                  >
+                  Ver Solicitudes
+                  </button>
                   </td>
-                </tr>
-            )}
+              </tr>
+              ))}
             </tbody>
           </table>
         </div>

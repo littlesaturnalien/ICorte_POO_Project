@@ -74,7 +74,7 @@ const StudentDashboard = () => {
       <StudentLayout>
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
           <h1 className="text-2xl font-bold mb-4">
-            Bienvenido, {student.names} {student.surnames}
+            Bienvenido/a, {student.names} {student.surnames}
           </h1>
 
           {/* Información Académica */}

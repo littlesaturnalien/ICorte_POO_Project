@@ -18,6 +18,7 @@ import AdminUsers from './pages/admin/Users';
 import AdminStudents from './pages/admin/Students';
 import AdminCreateUsers from './pages/admin/CreateUser';
 import AdminEditUser from './pages/admin/EditUser';
+import StudentIDCard from './pages/admin/StudentIDCard';
 
 //Superadmin
 import SuperadminDashboard from "./pages/superadmin/Dashboard";
@@ -83,6 +84,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+              path="/admin/students/:cif/idcard"
+              element={
+                  <ProtectedRoute roles={['admin','superadmin']}>
+                      <StudentIDCard />
+                  </ProtectedRoute>
+              }
+          />
           <Route
               path="/admin/createUser"
               element={
