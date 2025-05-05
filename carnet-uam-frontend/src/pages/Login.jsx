@@ -58,7 +58,7 @@ const Login = () => {
         {/* Barra superior */}
         <div className="w-full bg-white/90 py-3 px-6 flex justify-between items-center shadow">
           <img
-              src="/images/idkeeperlogo.jpeg"
+              src="/images/idkeeperlogo.png"
               alt="ID Keeper Logo"
               className="h-20 object-contain"
           />
