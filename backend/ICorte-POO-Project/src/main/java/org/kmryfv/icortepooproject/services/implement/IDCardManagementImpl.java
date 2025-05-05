@@ -120,20 +120,18 @@ public class IDCardManagementImpl implements IIDCardManagement {
         dto.setNames(user.getNames());
         dto.setSurnames(user.getSurnames());
 
-        dto.setDegrees(user.getDegrees().stream()
-                .map(Degree::getDegreeName)
-                .collect(Collectors.toSet()));
-
-        dto.setFaculties(user.getFaculties().stream()
-                .map(Faculty::getFacultyName)
-                .collect(Collectors.toSet()));
-
         Degree selected = card.getSelectedDegree();
         if (selected != null) {
             dto.setSelectedDegreeId(selected.getDegreeId());
             dto.setSelectedDegreeName(selected.getDegreeName());
             dto.setSelectedFacultyName(selected.getFaculties().getFacultyName());
         }
+
+        Requirement requirement = card.getRequirement();
+        dto.setRequirement_id(requirement.getRequirementId());
+        dto.setPayment_proof_url(requirement.getPaymentProofUrl());
+        dto.setPicture_url(requirement.getPicture().getPhotoUrl());
+
         return dto;
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -30,10 +29,12 @@ public class IDCardResponseDTO {
     private String cif;
     private String names;
     private String surnames;
-    private Set<String> degrees;
-    private Set<String> faculties;
 
     private Long selectedDegreeId;
     private String selectedDegreeName;
     private String selectedFacultyName;
+
+    private Long requirement_id;
+    private String payment_proof_url;
+    private String picture_url;
 }
