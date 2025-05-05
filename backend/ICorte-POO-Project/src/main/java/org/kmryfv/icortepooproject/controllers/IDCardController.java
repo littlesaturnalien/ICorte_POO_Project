@@ -1,9 +1,6 @@
 package org.kmryfv.icortepooproject.controllers;
 
-import org.kmryfv.icortepooproject.dto.IDCardNotesUpdateDTO;
-import org.kmryfv.icortepooproject.dto.IDCardRequestDTO;
-import org.kmryfv.icortepooproject.dto.IDCardResponseDTO;
-import org.kmryfv.icortepooproject.dto.IDCardStatusUpdateDTO;
+import org.kmryfv.icortepooproject.dto.*;
 import org.kmryfv.icortepooproject.models.IDCard;
 import org.kmryfv.icortepooproject.services.interfaces.IIDCardManagement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +45,12 @@ public class IDCardController {
     @PatchMapping("/{id}/addNotes")
     public void addNotes(@PathVariable Long id, @RequestBody IDCardNotesUpdateDTO dto) {
         idCardService.updateNotes(id, dto.getNotes());
+    }
+
+
+    @PatchMapping("/{id}/dates")
+    public void updateDates(@PathVariable Long id, @RequestBody IDCardDatesUpdateDTO dto) {
+        idCardService.updateDates(id, dto.getIssueDate(), dto.getDeliveryAppointment());
     }
 
     @DeleteMapping("/{id}")

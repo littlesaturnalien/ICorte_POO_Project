@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,6 +97,21 @@ public class IDCardManagementImpl implements IIDCardManagement {
         card.setAdditional_notes(note);
         idCardRepository.save(card);
     }
+
+    @Override
+    public void updateDates(Long id, LocalDate issue, LocalDateTime delivery) {
+        IDCard card = idCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
+
+        if (issue != null) {
+            card.setIssueDate(issue);
+        }
+        if (delivery != null) {
+            card.setDeliveryAppointment(delivery);
+        }
+        idCardRepository.save(card);
+    }
+
 
     @Override
     public IDCardResponseDTO getDetailedById(Long id) {
