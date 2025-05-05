@@ -5,6 +5,13 @@ import { Link } from 'react-router-dom';
 import { format, parseISO, parse } from 'date-fns';
 import StudentLayout from '../../layouts/StudentLayout';
 
+const C = {
+  tealLight: '#4da4ab',
+  tealMid: '#487e84',
+  tealDark: '#0b545b',
+  black: '#2d2e3c'
+};
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   let dt;
@@ -108,7 +115,13 @@ export default function StudentDashboard() {
             <div className="text-right mt-4">
               <Link
                   to="/student/requestid"
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="px-4 py-2 rounded text-white"
+                  style={{
+                    backgroundColor: C.tealLight,
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.backgroundColor = C.tealMid)}
+                  onMouseOut={e => (e.currentTarget.style.backgroundColor = C.tealLight)}
               >
                 Solicitar Carnet
               </Link>
@@ -145,7 +158,13 @@ export default function StudentDashboard() {
               <div className="text-right">
                 <Link
                     to="/superadmin/dashboard"
-                    className="inline-block bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
+                    className="inline-block text-white px-4 py-2 rounded"
+                    style={{
+                      backgroundColor: C.black,
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseOver={e => (e.currentTarget.style.backgroundColor = C.tealDark)}
+                    onMouseOut={e => (e.currentTarget.style.backgroundColor = C.black)}
                 >
                   ← Volver a Superadmin
                 </Link>

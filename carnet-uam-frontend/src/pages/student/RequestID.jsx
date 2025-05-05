@@ -272,7 +272,12 @@ const RequestIDCard = () => {
             <button
                 type="submit"
                 disabled={!degreeOptions.length}
-                className="w-full bg-[#0099A8] text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                className="w-full text-white py-2 rounded disabled:opacity-50"
+                style={{
+                  backgroundColor: '#487e84', // C.tealMid
+                }}
+                onMouseOver={e => (e.currentTarget.style.backgroundColor = '#0b545b')} // C.tealDark
+                onMouseOut={e => (e.currentTarget.style.backgroundColor = '#487e84')}  // C.tealMid
             >
               Enviar Solicitud
             </button>

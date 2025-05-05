@@ -3,6 +3,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import StudentLayout from '../../layouts/StudentLayout';
 
+const C = {
+  tealLight: '#4da4ab',
+  tealMid: '#487e84',
+  tealDark: '#0b545b',
+  black: '#2d2e3c'
+};
+
 const StudentProfile = () => {
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -70,7 +77,12 @@ const StudentProfile = () => {
                           setNewPhone(user.phoneNumber || '');
                           setEditing(true);
                         }}
-                        className="ml-4 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                        className="ml-4 text-white px-3 py-1 rounded"
+                        style={{
+                          backgroundColor: C.tealMid
+                        }}
+                        onMouseOver={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                        onMouseOut={e => e.currentTarget.style.backgroundColor = C.tealMid}
                     >
                       Editar
                     </button>
@@ -85,13 +97,19 @@ const StudentProfile = () => {
                     />
                     <button
                         onClick={savePhone}
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        className="text-white px-3 py-1 rounded"
+                        style={{ backgroundColor: C.tealLight }}
+                        onMouseOver={e => e.currentTarget.style.backgroundColor = C.tealMid}
+                        onMouseOut={e => e.currentTarget.style.backgroundColor = C.tealLight}
                     >
                       Guardar
                     </button>
                     <button
                         onClick={() => setEditing(false)}
-                        className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                        className="text-white px-3 py-1 rounded"
+                        style={{ backgroundColor: C.black }}
+                        onMouseOver={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                        onMouseOut={e => e.currentTarget.style.backgroundColor = C.black}
                     >
                       Cancelar
                     </button>
