@@ -19,6 +19,8 @@ import AdminStudents from './pages/admin/Students';
 import AdminCreateUsers from './pages/admin/CreateUser';
 import AdminEditUser from './pages/admin/EditUser';
 import StudentIDCard from './pages/admin/StudentIDCard';
+import FacultyManagement from './pages/superadmin/FacultyManagement';
+import DegreeManagement from './pages/superadmin/DegreeManagement';
 
 //Superadmin
 import SuperadminDashboard from "./pages/superadmin/Dashboard";
@@ -113,6 +115,20 @@ function App() {
               element={
                   <ProtectedRoute roles={['superadmin']}>
                       <SuperadminDashboard />
+                  </ProtectedRoute>}
+          />
+          <Route
+              path="/superadmin/faculties"
+              element={
+                  <ProtectedRoute roles={['superadmin']}>
+                      <FacultyManagement />
+                  </ProtectedRoute>}
+          />
+          <Route
+              path="/superadmin/degrees"
+              element={
+                  <ProtectedRoute roles={['superadmin']}>
+                      <DegreeManagement />
                   </ProtectedRoute>}
           />
         {/* ✅ Cualquier otra ruta te lleva al login */}
