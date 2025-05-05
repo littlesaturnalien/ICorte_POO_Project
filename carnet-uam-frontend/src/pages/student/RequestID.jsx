@@ -18,6 +18,7 @@ const RequestIDCard = () => {
     paymentProofUrl: '',
   });
 
+  /* ───────────── Normalizar carreras ───────────── */
   const buildDegreeOptions = stu => {
     if (Array.isArray(stu.studies) && stu.studies.length) {
       return stu.studies.map(s => ({
@@ -26,11 +27,7 @@ const RequestIDCard = () => {
       }));
     }
     if (Array.isArray(stu.degrees) && stu.degrees.length) {
-      return stu.degrees.map((d, idx) =>
-        typeof d === 'object'
-          ? { id: d.id ?? d.degreeId ?? idx + 1, name: d.name ?? d.degreeName }
-          : { id: idx + 1, name: d }
-      );
+      return []; // sin IDs reales → deshabilita solicitud
     }
     if (stu.degreeId && stu.degreeName) {
       return [{ id: stu.degreeId, name: stu.degreeName }];
@@ -38,26 +35,25 @@ const RequestIDCard = () => {
     return [];
   };
 
-  /* ───────────── Fetch del estudiante ───────────── */
+  /* ───────────── Fetch estudiante ───────────── */
   useEffect(() => {
     if (!cif) return;
     (async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8087/uam-carnet-sys/student/byCif=${cif}`
+            `http://localhost:8087/uam-carnet-sys/student/byCif=${cif}`
         );
         const payload = res.data;
         const stu = payload.data
-          ? (Array.isArray(payload.data) ? payload.data[0] : payload.data)
-          : payload;
+            ? Array.isArray(payload.data) ? payload.data[0] : payload.data
+            : payload;
+
         setStudent(stu);
 
-        // Ahora sí podemos usar buildDegreeOptions
         const opts = buildDegreeOptions(stu);
-        setForm(f => ({
-          ...f,
-          selectedDegreeId: opts.length ? String(opts[0].id) : '',
-        }));
+        if (opts.length) {
+          setForm(f => ({ ...f, selectedDegreeId: String(opts[0].id) }));
+        }
       } catch (err) {
         console.error('Error al cargar estudiante:', err);
       }
@@ -72,9 +68,6 @@ const RequestIDCard = () => {
     );
   }
 
-  /* ───────────── Helper para normalizar carreras ───────────── */
-  
-
   const degreeOptions = buildDegreeOptions(student);
 
   /* ───────────── Handlers ───────────── */
@@ -83,133 +76,84 @@ const RequestIDCard = () => {
     setForm(f => ({ ...f, [name]: value }));
   };
 
+  const toLocalDateTimeString = iso => {
+    // "2025-05-07T15:20" → "07-05-2025 15:20"
+    const [ymd, hm] = iso.split('T');
+    const [Y, M, D] = ymd.split('-');
+    return `${D}-${M}-${Y} ${hm}`;
+  };
+
   const handleSubmit = async e => {
     e.preventDefault();
-  
-    // 0) Validaciones
-    if (!form.selectedDegreeId) {
-      return alert('Por favor selecciona una carrera.');
+
+    if (!degreeOptions.length) {
+      return alert('No se encontró una carrera válida. Contacta a soporte.');
     }
-    if (!form.academicYear) {
-      return alert('Por favor selecciona el año de la carrera.');
-    }
+    if (!form.selectedDegreeId) return alert('Selecciona una carrera.');
     if (!form.photoAppointment || !form.photoUrl || !form.paymentProofUrl) {
       return alert('Todos los campos son obligatorios.');
     }
-  
-    // 1) Formatear la cita a "dd-MM-yyyy HH:mm"
-    const [ymd, hm] = form.photoAppointment.split('T');      // ["2025-05-05","16:52"]
-    const [Y, M, D] = ymd.split('-');                        // ["2025","05","05"]
-    const formatted = `${D}-${M}-${Y} ${hm}`;                // "05-05-2025 16:52"
-  
+
+    const formattedDate = toLocalDateTimeString(form.photoAppointment);
+
     try {
-      // ────── FOTO (upsert) ──────
+      /* ─── FOTO (upsert) ─── */
+      const { data: allPics } = await axios.get(
+          'http://localhost:8087/uam-carnet-sys/picture'
+      );
+      const existingPic = allPics.find(p => p.cif === cif);
+
       let pictureId;
-      // 1a) Busco todas las fotos y veo si ya hay una para este cif
-      const { data: allPics } = await axios.get('http://localhost:8087/uam-carnet-sys/picture');
-      const existing = allPics.find(p => p.cif === cif);
-  
-      if (existing) {
-        // 1b) Si existe, la actualizo
-        console.log('✏️ Actualizando foto existente, id=', existing.pictureId);
-        const { data: updated } = await axios.put(
-          `http://localhost:8087/uam-carnet-sys/picture/${existing.pictureId}`,
-          {
-            cif,
-            photoAppointment: formatted,
-            photoUrl: form.photoUrl,
-          }
+      if (existingPic) {
+        const { data: upd } = await axios.put(
+            `http://localhost:8087/uam-carnet-sys/picture/${existingPic.pictureId}`,
+            { cif, photoAppointment: formattedDate, photoUrl: form.photoUrl }
         );
-        pictureId = updated.pictureId;
+        pictureId = upd.pictureId;
       } else {
-        // 1c) Si no existe, la creo
-        console.log('▶️ Creando nueva foto…');
         const { data: created } = await axios.post(
-          'http://localhost:8087/uam-carnet-sys/picture',
-          {
-            cif,
-            photoAppointment: formatted,
-            photoUrl: form.photoUrl,
-          }
+            'http://localhost:8087/uam-carnet-sys/picture',
+            { cif, photoAppointment: formattedDate, photoUrl: form.photoUrl }
         );
         pictureId = created.pictureId;
       }
-      console.log('✅ pictureId final =', pictureId);
-  
-      if (!pictureId) {
-        throw new Error('No pudimos obtener pictureId');
-      }
-  
-      // ────── REQUISITO ──────
-      console.log('▶️ POST /requirement', { cif, pictureId, paymentProofUrl: form.paymentProofUrl });
-      const { data: reqData } = await axios.post(
-        'http://localhost:8087/uam-carnet-sys/requirement',
-        {
-          cif,
-          pictureId,
-          paymentProofUrl: form.paymentProofUrl,
-        }
-      );
-      // ───── REQUISITO (upsert) ─────
-      let requirementId;
-      // 1) Traigo todos los requisitos y busco el que tenga el mismo pictureId
+
+      /* ─── REQUISITO (upsert) ─── */
       const { data: allReqs } = await axios.get(
-        'http://localhost:8087/uam-carnet-sys/requirement'
+          'http://localhost:8087/uam-carnet-sys/requirement'
       );
-      const existingReq = allReqs.find(r => r.fotoId === pictureId);
-      
+      const existingReq = allReqs.find(r => r.pictureId === pictureId);
+
+      let requirementId;
       if (existingReq) {
-        // 2a) Si existe, lo actualizo vía PUT
-        console.log('✏️ Actualizando requisito existente, id=', existingReq.requirementId);
         const { data: upd } = await axios.put(
-          `http://localhost:8087/uam-carnet-sys/requirement/${existingReq.requirementId}`,
-          {
-            cif,
-            fotoId: pictureId,
-            paymentProofUrl: form.paymentProofUrl,
-          }
+            `http://localhost:8087/uam-carnet-sys/requirement/${existingReq.requirementId}`,
+            { cif, pictureId, paymentProofUrl: form.paymentProofUrl }
         );
         requirementId = upd.requirementId;
       } else {
-        // 2b) Si no existe, lo creo vía POST
-        console.log('▶️ Creando nuevo requisito…');
         const { data: created } = await axios.post(
-          'http://localhost:8087/uam-carnet-sys/requirement',
-          {
-            cif,
-            pictureId,
-            paymentProofUrl: form.paymentProofUrl,
-          }
+            'http://localhost:8087/uam-carnet-sys/requirement',
+            { cif, pictureId, paymentProofUrl: form.paymentProofUrl }
         );
         requirementId = created.requirementId;
       }
-      
-      if (!requirementId) {
-        throw new Error('No se obtuvo requirementId');
-      }
-      console.log('✅ requirementId final =', requirementId);
-  
-      // ────── SOLICITUD DE CARNET ──────
-      const payload = {
+
+      /* ─── SOLICITUD DE CARNET ─── */
+      await axios.post('http://localhost:8087/uam-carnet-sys/idcard', {
         cif,
         semester: form.semester,
         selectedDegreeId: Number(form.selectedDegreeId),
         requirementId,
-        deliveryAppointment: formatted,
-      };
-      console.log('▶️ POST /idcard', payload);
-      await axios.post('http://localhost:8087/uam-carnet-sys/idcard', payload);
-      console.log('✅ Carnet solicitado correctamente');
-  
-      // ────── REDIRECCIÓN ──────
+        deliveryAppointment: formattedDate, // patrón dd-MM-yyyy HH:mm
+      });
+
       navigate('/student/dashboard', { replace: true });
-  
     } catch (err) {
-      console.error('❌ Error completo:', err);
-      console.error('❌ err.response.data:', err.response?.data);
+      console.error('Error completo:', err);
       alert(
-        'Error al procesar la solicitud:\n' +
-        JSON.stringify(err.response?.data || err.message, null, 2)
+          'Error al procesar la solicitud:\n' +
+          JSON.stringify(err.response?.data || err.message, null, 2)
       );
     }
   };
@@ -220,27 +164,31 @@ const RequestIDCard = () => {
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow rounded">
           <h1 className="text-2xl font-bold mb-6">Solicitar Carnet</h1>
 
+          {!degreeOptions.length && (
+              <div className="p-4 mb-6 bg-yellow-100 text-yellow-800 rounded">
+                No se encontró un identificador de carrera válido asociado a tu
+                perfil. Por favor contacta a soporte.
+              </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ▸ Carreras */}
             <div>
               <label className="block font-medium mb-1">Carrera</label>
-              {degreeOptions.length ? (
-                  <select
+              <select
                   name="selectedDegreeId"
                   value={form.selectedDegreeId}
                   onChange={handleChange}
                   required
-                  className="w-full border rounded p-2"
-                >
-                  {degreeOptions.map(opt => (
+                  className="w-full border rounded p-2 disabled:bg-gray-100"
+                  disabled={!degreeOptions.length}
+              >
+                {degreeOptions.map(opt => (
                     <option key={opt.id} value={String(opt.id)}>
                       {opt.name}
                     </option>
-                  ))}
-                </select>
-              ) : (
-                  <p className="text-red-600">No se encontraron carreras</p>
-              )}
+                ))}
+              </select>
             </div>
 
             {/* ▸ Año de Carrera */}
@@ -255,7 +203,9 @@ const RequestIDCard = () => {
               >
                 <option value="">Seleccione año...</option>
                 {[1, 2, 3, 4, 5].map(year => (
-                    <option key={year} value={year}>{year}</option>
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                 ))}
               </select>
             </div>
@@ -276,7 +226,9 @@ const RequestIDCard = () => {
 
             {/* ▸ Cita de Foto */}
             <div>
-              <label className="block font-medium mb-1">Fecha y Hora de Cita de Foto</label>
+              <label className="block font-medium mb-1">
+                Fecha y Hora de Cita de Foto
+              </label>
               <input
                   type="datetime-local"
                   name="photoAppointment"
@@ -303,7 +255,9 @@ const RequestIDCard = () => {
 
             {/* ▸ URL Comprobante */}
             <div>
-              <label className="block font-medium mb-1">URL del Comprobante de Pago</label>
+              <label className="block font-medium mb-1">
+                URL del Comprobante de Pago
+              </label>
               <input
                   type="url"
                   name="paymentProofUrl"
@@ -317,7 +271,8 @@ const RequestIDCard = () => {
 
             <button
                 type="submit"
-                className="w-full bg-[#0099A8] text-white py-2 rounded hover:bg-blue-700"
+                disabled={!degreeOptions.length}
+                className="w-full bg-[#0099A8] text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
             >
               Enviar Solicitud
             </button>
