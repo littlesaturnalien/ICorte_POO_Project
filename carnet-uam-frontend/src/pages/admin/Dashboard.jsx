@@ -12,6 +12,9 @@ const AdminDashboard = () => {
         <Link to="/admin/users" className="bg-indigo-600 text-white p-4 rounded shadow hover:bg-indigo-700 transition">
           👤 Gestión de Usuarios
         </Link>
+          <Link to="/admin/admins" className="bg-indigo-600 text-white p-4 rounded shadow hover:bg-indigo-700 transition">
+              Gestión de Administradores
+          </Link>
       </div>
     </div>
   );

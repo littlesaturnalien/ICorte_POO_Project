@@ -16,6 +16,8 @@ import RequestID from './pages/student/RequestID';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminStudents from './pages/admin/Students';
+import AdminCreateUsers from './pages/admin/CreateUser';
+import AdminEditUser from './pages/admin/EditUser';
 
 //Superadmin
 import SuperadminDashboard from "./pages/superadmin/Dashboard";
@@ -81,6 +83,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+              path="/admin/createUser"
+              element={
+                  <ProtectedRoute roles={['admin','superadmin']}>
+                      <AdminCreateUsers />
+                  </ProtectedRoute>
+              }
+          />
+          <Route
+              path="/admin/editUser/:cif"
+              element={
+                  <ProtectedRoute roles={['admin','superadmin']}>
+                      <AdminEditUser />
+                  </ProtectedRoute>
+              }
+          />
           <Route
               path="/superadmin/dashboard"
               element={
