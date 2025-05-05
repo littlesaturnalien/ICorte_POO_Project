@@ -1,5 +1,6 @@
 package org.kmryfv.icortepooproject.controllers;
 
+import org.kmryfv.icortepooproject.dto.IDCardNotesUpdateDTO;
 import org.kmryfv.icortepooproject.dto.IDCardRequestDTO;
 import org.kmryfv.icortepooproject.dto.IDCardResponseDTO;
 import org.kmryfv.icortepooproject.dto.IDCardStatusUpdateDTO;
@@ -42,6 +43,11 @@ public class IDCardController {
     @PatchMapping("/{id}/status")
     public void changeStatus(@PathVariable Long id, @RequestBody IDCardStatusUpdateDTO dto) {
         idCardService.updateStatus(id, dto.getStatus());
+    }
+
+    @PatchMapping("/{id}/addNotes")
+    public void addNotes(@PathVariable Long id, @RequestBody IDCardNotesUpdateDTO dto) {
+        idCardService.updateNotes(id, dto.getNotes());
     }
 
     @DeleteMapping("/{id}")

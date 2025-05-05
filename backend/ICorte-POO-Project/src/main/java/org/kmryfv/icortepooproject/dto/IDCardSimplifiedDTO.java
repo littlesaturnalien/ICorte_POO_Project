@@ -16,4 +16,5 @@ public class IDCardSimplifiedDTO {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm")
     private LocalDateTime deliveryAppointment;
+    private String notes;
 }

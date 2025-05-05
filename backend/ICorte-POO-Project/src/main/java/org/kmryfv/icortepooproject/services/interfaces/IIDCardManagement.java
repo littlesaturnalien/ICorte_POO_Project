@@ -11,5 +11,6 @@ public interface IIDCardManagement {
     List<IDCard> getAll();
     IDCardResponseDTO getDetailedById(Long id);
     void updateStatus(Long id, String status);
+    void updateNotes(Long id, String note);
     void deleteById(Long id);
 }

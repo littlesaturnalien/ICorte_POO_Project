@@ -90,6 +90,14 @@ public class IDCardManagementImpl implements IIDCardManagement {
     }
 
     @Override
+    public void updateNotes(Long id, String note) {
+        IDCard card = idCardRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
+        card.setAdditional_notes(note);
+        idCardRepository.save(card);
+    }
+
+    @Override
     public IDCardResponseDTO getDetailedById(Long id) {
         IDCard card = idCardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Carnet con ID " + id + " no encontrado"));
@@ -105,6 +113,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
         dto.setExpirationDate(card.getExpirationDate());
         dto.setStatus(card.getStatus().name());
         dto.setDeliveryAppointment(card.getDeliveryAppointment());
+        dto.setNotes(card.getAdditional_notes());
 
         UserProfile user = card.getUser();
         dto.setCif(user.getCif());

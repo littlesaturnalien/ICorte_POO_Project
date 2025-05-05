@@ -51,6 +51,9 @@ public class IDCard {
     @JoinColumn(name = "degree_id", nullable = false)
     private Degree selectedDegree;
 
+    @Column(name = "observaciones")
+    private String additional_notes;
+
     public IDCard(UserProfile user, String semester) {
         this.user = user;
         this.semester = semester;

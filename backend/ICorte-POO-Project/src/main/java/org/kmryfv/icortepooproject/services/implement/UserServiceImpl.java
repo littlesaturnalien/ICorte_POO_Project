@@ -163,7 +163,8 @@ public class UserServiceImpl implements IUserService {
                                 card.getSemester(),
                                 card.getYear(),
                                 card.getStatus().name(),
-                                card.getDeliveryAppointment()
+                                card.getDeliveryAppointment(),
+                                card.getAdditional_notes()
                         ))
                         .collect(Collectors.toList())
         );
