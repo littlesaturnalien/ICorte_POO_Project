@@ -3,6 +3,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import SuperadminLayout from '../../layouts/SuperadminLayout';
 
+// Palette
+const C = {
+    tealLight:   '#4da4ab',   // secondary actions (cancel, clear)
+    tealMid:     '#487e84',   // primary actions (add, save)
+    tealDark:    '#0b545b',   // edit action
+    danger:      '#dc2626',   // delete action (red)
+    dangerHover: '#b91c1c'
+};
+
 export default function DegreeManagement() {
     const [degrees, setDegrees] = useState([]);
     const [faculties, setFaculties] = useState([]);
@@ -28,7 +37,6 @@ export default function DegreeManagement() {
     const startEdit = (d) => {
         setEditingId(d.degreeId);
         setNameInput(d.degreeName);
-        // find facultyName in faculties list
         const fac = faculties.find(f => f.facultyName === d.facultyName);
         setFacultyId(fac?.facultyName || '');
     };
@@ -41,7 +49,6 @@ export default function DegreeManagement() {
 
     const saveNew = async () => {
         if (!nameInput.trim() || !facultyId) return;
-        // find facultyId by name
         const fac = faculties.find(f => f.facultyName === facultyId);
         await axios.post('http://localhost:8087/uam-carnet-sys/degree', {
             degreeName: nameInput,
@@ -63,18 +70,15 @@ export default function DegreeManagement() {
     };
 
     const remove = async (id) => {
-        if (window.confirm('¿Eliminar esta carrera?')) {
-            await axios.delete(`http://localhost:8087/uam-carnet-sys/degree/${id}`);
-            fetchAll();
-        }
+        if (!window.confirm('¿Eliminar esta carrera?')) return;
+        await axios.delete(`http://localhost:8087/uam-carnet-sys/degree/${id}`);
+        fetchAll();
     };
 
-    const filtered = degrees.filter((d) => {
+    const filtered = degrees.filter(d => {
         const term = searchTerm.trim().toLowerCase();
         const nameMatch = !term || d.degreeName.toLowerCase().includes(term);
-        const facMatch =
-            facultyFilter === 'ALL' ||
-            d.facultyName === facultyFilter;
+        const facMatch = facultyFilter === 'ALL' || d.facultyName === facultyFilter;
         return nameMatch && facMatch;
     });
 
@@ -83,21 +87,22 @@ export default function DegreeManagement() {
             <div className="max-w-5xl mx-auto mt-10 bg-white p-6 rounded shadow">
                 <h1 className="text-2xl font-bold mb-4">Gestión de Carreras</h1>
 
+                {/* Búsqueda y filtro */}
                 <div className="flex flex-wrap gap-2 mb-4">
                     <input
                         type="text"
                         placeholder="Buscar carrera…"
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={e => setSearchTerm(e.target.value)}
                         className="border px-3 py-2 rounded flex-grow min-w-[200px]"
                     />
                     <select
                         value={facultyFilter}
-                        onChange={(e) => setFacultyFilter(e.target.value)}
+                        onChange={e => setFacultyFilter(e.target.value)}
                         className="border px-3 py-2 rounded"
                     >
                         <option value="ALL">Todas las facultades</option>
-                        {faculties.map((f) => (
+                        {faculties.map(f => (
                             <option key={f.facultyId} value={f.facultyName}>
                                 {f.facultyName}
                             </option>
@@ -108,27 +113,31 @@ export default function DegreeManagement() {
                             setSearchTerm('');
                             setFacultyFilter('ALL');
                         }}
-                        className="bg-gray-300 px-3 rounded"
+                        className="px-3 rounded font-semibold transition"
+                        style={{ backgroundColor: C.tealLight, color: 'white' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealLight}
                     >
                         Limpiar
                     </button>
                 </div>
 
+                {/* Formulario de alta/edición */}
                 <div className="grid grid-cols-3 gap-2 mb-6">
                     <input
                         type="text"
                         placeholder="Nueva Carrera"
                         className="border px-3 py-2 rounded col-span-2"
                         value={nameInput}
-                        onChange={(e) => setNameInput(e.target.value)}
+                        onChange={e => setNameInput(e.target.value)}
                     />
                     <select
                         className="border px-3 py-2 rounded"
                         value={facultyId}
-                        onChange={(e) => setFacultyId(e.target.value)}
+                        onChange={e => setFacultyId(e.target.value)}
                     >
                         <option value="">Facultad…</option>
-                        {faculties.map((f) => (
+                        {faculties.map(f => (
                             <option key={f.facultyId} value={f.facultyName}>
                                 {f.facultyName}
                             </option>
@@ -138,7 +147,10 @@ export default function DegreeManagement() {
                         {editingId == null ? (
                             <button
                                 onClick={saveNew}
-                                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                className="px-4 py-2 rounded font-semibold transition"
+                                style={{ backgroundColor: C.tealMid, color: 'white' }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealMid}
                             >
                                 Añadir
                             </button>
@@ -146,13 +158,19 @@ export default function DegreeManagement() {
                             <>
                                 <button
                                     onClick={() => saveEdit(editingId)}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    className="px-4 py-2 rounded font-semibold transition"
+                                    style={{ backgroundColor: C.tealMid, color: 'white' }}
+                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealMid}
                                 >
                                     Guardar
                                 </button>
                                 <button
                                     onClick={cancelEdit}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                                    className="px-4 py-2 rounded font-semibold transition"
+                                    style={{ backgroundColor: C.tealLight, color: 'white' }}
+                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealMid}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealLight}
                                 >
                                     Cancelar
                                 </button>
@@ -161,6 +179,7 @@ export default function DegreeManagement() {
                     </div>
                 </div>
 
+                {/* Tabla de carreras */}
                 <table className="w-full table-auto border text-left">
                     <thead className="bg-gray-100">
                     <tr>
@@ -170,13 +189,13 @@ export default function DegreeManagement() {
                     </tr>
                     </thead>
                     <tbody>
-                    {filtered.map((d) => (
+                    {filtered.map(d => (
                         <tr key={d.degreeId} className="border-t">
                             <td className="p-2">
                                 {editingId === d.degreeId ? (
                                     <input
                                         value={nameInput}
-                                        onChange={(e) => setNameInput(e.target.value)}
+                                        onChange={e => setNameInput(e.target.value)}
                                         className="border px-2 py-1 rounded w-full"
                                     />
                                 ) : (
@@ -187,11 +206,11 @@ export default function DegreeManagement() {
                                 {editingId === d.degreeId ? (
                                     <select
                                         value={facultyId}
-                                        onChange={(e) => setFacultyId(e.target.value)}
+                                        onChange={e => setFacultyId(e.target.value)}
                                         className="border px-2 py-1 rounded w-full"
                                     >
                                         <option value="">Facultad…</option>
-                                        {faculties.map((f) => (
+                                        {faculties.map(f => (
                                             <option key={f.facultyId} value={f.facultyName}>
                                                 {f.facultyName}
                                             </option>
@@ -201,23 +220,31 @@ export default function DegreeManagement() {
                                     d.facultyName
                                 )}
                             </td>
-                            <td className="p-2 space-x-2">
-                                {editingId !== d.degreeId && (
-                                    <>
-                                        <button
-                                            onClick={() => startEdit(d)}
-                                            className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => remove(d.degreeId)}
-                                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </>
-                                )}
+                            <td className="p-2">
+                                <div className="flex items-center gap-2">
+                                    {editingId !== d.degreeId && (
+                                        <>
+                                            <button
+                                                onClick={() => startEdit(d)}
+                                                className="px-3 py-1 rounded font-semibold transition"
+                                                style={{ backgroundColor: C.tealDark, color: 'white' }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealMid}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => remove(d.degreeId)}
+                                                className="px-3 py-1 rounded font-semibold transition"
+                                                style={{ backgroundColor: C.danger, color: 'white' }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.dangerHover}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.danger}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </td>
                         </tr>
                     ))}

@@ -9,64 +9,89 @@ const C = {
   tealLight: '#4da4ab',
   tealMid:   '#487e84',
   tealDark:  '#0b545b',
-  black:     '#2d2e3c',
+  danger:    '#c0392b',
+  warning:   '#f39c12',
 };
 
 const roleOptions = ['ALL', 'SUPERADMIN', 'ADMIN', 'STUDENT', 'BLOCKED'];
 const typeOptions = ['ALL', 'PROFESOR', 'ESTUDIANTE'];
 
 const AdminUsers = () => {
-  const [allUsers, setAllUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data } = await axios.get('http://localhost:8087/uam-carnet-sys/user');
-        setAllUsers(data);
-      } catch (err) {
-        console.error('Error al cargar usuarios:', err);
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  const filteredUsers = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return allUsers.filter(u => {
-      const matchesText =
-          !term ||
-          u.cif.toLowerCase().includes(term) ||
-          u.names.toLowerCase().includes(term) ||
-          u.surnames.toLowerCase().includes(term);
-
-      const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
-      const matchesType = typeFilter === 'ALL' || u.type?.toUpperCase() === typeFilter;
-
-      return matchesText && matchesRole && matchesType;
-    });
-  }, [allUsers, search, roleFilter, typeFilter]);
-
-  const deleteUser = async cif => {
-    if (window.confirm('¿Eliminar este usuario?')) {
-      await axios.delete(`http://localhost:8087/uam-carnet-sys/user/${cif}`);
-      setAllUsers(prev => prev.filter(u => u.cif !== cif));
+  // Carga inicial de usuarios
+  const fetchUsers = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:8087/uam-carnet-sys/user');
+      setUsers(data);
+    } catch (err) {
+      console.error('Error al cargar usuarios:', err);
     }
   };
 
-  const promoteToAdmin = async cif => {
-    await axios.patch(`http://localhost:8087/uam-carnet-sys/user/${cif}/promote`);
-    alert('✅ Usuario promovido a ADMIN');
-    window.location.reload();
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Filtros de búsqueda
+  const filteredUsers = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return users.filter(u => {
+      const txt = `${u.cif} ${u.names} ${u.surnames}`.toLowerCase();
+      if (term && !txt.includes(term)) return false;
+      if (roleFilter !== 'ALL' && u.role !== roleFilter) return false;
+      if (typeFilter !== 'ALL' && u.type?.toUpperCase() !== typeFilter) return false;
+      return true;
+    });
+  }, [users, search, roleFilter, typeFilter]);
+
+  // Eliminar usuario
+  const deleteUser = async cif => {
+    if (!window.confirm('¿Eliminar este usuario?')) return;
+    try {
+      await axios.delete(`http://localhost:8087/uam-carnet-sys/user/${cif}`);
+      alert('Usuario eliminado');
+      fetchUsers();
+    } catch (err) {
+      console.error('Error al eliminar usuario:', err);
+      alert('No se pudo eliminar el usuario');
+    }
   };
 
-  const revokeAdmin = async cif => {
-    await axios.patch(`http://localhost:8087/uam-carnet-sys/user/${cif}/revoke`);
-    alert('⚠️ Rol ADMIN revocado');
-    window.location.reload();
+  // Promover a ADMIN
+  const promoteToAdmin = async targetCif => {
+    try {
+      const myCif = localStorage.getItem('cif');
+      await axios.patch(
+          `http://localhost:8087/uam-carnet-sys/admin/${myCif}/promoteToAdmin`,
+          { cif: targetCif }
+      );
+      alert('✅ Usuario promovido a ADMIN');
+      fetchUsers();
+    } catch (err) {
+      console.error('Error al promover:', err);
+      alert('No se pudo promover al usuario');
+    }
+  };
+
+  // Revocar rol ADMIN
+  const revokeAdmin = async targetCif => {
+    try {
+      const myCif = localStorage.getItem('cif');
+      await axios.patch(
+          `http://localhost:8087/uam-carnet-sys/admin/${myCif}/revokeAdminRole`,
+          { cif: targetCif }
+      );
+      alert('⚠️ Rol ADMIN revocado');
+      fetchUsers();
+    } catch (err) {
+      console.error('Error al revocar:', err);
+      alert('No se pudo revocar el rol');
+    }
   };
 
   return (
@@ -89,7 +114,9 @@ const AdminUsers = () => {
                 className="border px-3 py-2 rounded"
             >
               {roleOptions.map(r => (
-                  <option key={r} value={r}>{r === 'ALL' ? 'Todos los roles' : r}</option>
+                  <option key={r} value={r}>
+                    {r === 'ALL' ? 'Todos los roles' : r}
+                  </option>
               ))}
             </select>
 
@@ -99,13 +126,15 @@ const AdminUsers = () => {
                 className="border px-3 py-2 rounded"
             >
               {typeOptions.map(t => (
-                  <option key={t} value={t}>{t === 'ALL' ? 'Todos los tipos' : t}</option>
+                  <option key={t} value={t}>
+                    {t === 'ALL' ? 'Todos los tipos' : t}
+                  </option>
               ))}
             </select>
 
             <button
                 onClick={() => navigate('/admin/createuser')}
-                className="ml-auto text-white px-4 py-2 rounded"
+                className="ml-auto text-white px-4 py-2 rounded transition"
                 style={{ backgroundColor: C.tealDark }}
             >
               Crear Usuario
@@ -134,14 +163,14 @@ const AdminUsers = () => {
                   <td className="p-2 space-x-2">
                     <button
                         onClick={() => deleteUser(u.cif)}
-                        className="text-white px-3 py-1 rounded"
-                        style={{ backgroundColor: '#c0392b' }}
+                        className="text-white px-3 py-1 rounded transition"
+                        style={{ backgroundColor: C.danger }}
                     >
                       Eliminar
                     </button>
                     <button
                         onClick={() => navigate(`/admin/editUser/${u.cif}`)}
-                        className="text-white px-3 py-1 rounded"
+                        className="text-white px-3 py-1 rounded transition"
                         style={{ backgroundColor: C.tealMid }}
                     >
                       Editar
@@ -150,7 +179,7 @@ const AdminUsers = () => {
                     {['STUDENT', 'BLOCKED'].includes(u.role) && (
                         <button
                             onClick={() => promoteToAdmin(u.cif)}
-                            className="text-white px-3 py-1 rounded"
+                            className="text-white px-3 py-1 rounded transition"
                             style={{ backgroundColor: C.tealDark }}
                         >
                           Promover a Admin
@@ -159,8 +188,8 @@ const AdminUsers = () => {
                     {u.role === 'ADMIN' && (
                         <button
                             onClick={() => revokeAdmin(u.cif)}
-                            className="text-white px-3 py-1 rounded"
-                            style={{ backgroundColor: '#f39c12' }}
+                            className="text-white px-3 py-1 rounded transition"
+                            style={{ backgroundColor: C.warning }}
                         >
                           Revocar Admin
                         </button>
@@ -168,7 +197,7 @@ const AdminUsers = () => {
                   </td>
                 </tr>
             ))}
-            {!filteredUsers.length && (
+            {filteredUsers.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-4 text-gray-500">
                     No se encontraron usuarios que coincidan.

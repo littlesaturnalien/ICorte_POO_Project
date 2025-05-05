@@ -2,11 +2,11 @@
 import { Link } from 'react-router-dom';
 
 const C = {
-    tealLight: '#4da4ab',
-    tealMid:   '#487e84',
-    tealDark:  '#0b545b',
-    orange:    '#f98806',   // botón logout
-    orangeHover: '#d47104',
+    tealLight:  '#4da4ab',
+    tealMid:    '#487e84',
+    tealDark:   '#0b545b',  // ahora usado para la barra superior
+    orange:     '#f98806',  // botón logout
+    orangeHover:'#d47104',
 };
 
 const StudentLayout = ({ children }) => {
@@ -20,7 +20,7 @@ const StudentLayout = ({ children }) => {
             className="min-h-screen bg-cover bg-center"
             style={{ backgroundImage: "url('/images/background-students.png')" }}
         >
-            {/* Barra superior */}
+            {/* Barra superior en tealDark */}
             <nav
                 className="text-white px-6 py-4 flex justify-between items-center shadow"
                 style={{ backgroundColor: C.tealDark }}

@@ -3,6 +3,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import SuperadminLayout from '../../layouts/SuperadminLayout';
 
+// Palette (igual que en DegreeManagement)
+const C = {
+    tealLight:   '#4da4ab',   // secondary actions (cancel, clear)
+    tealMid:     '#487e84',   // primary actions (add, save)
+    tealDark:    '#0b545b',   // edit action
+    danger:      '#dc2626',   // delete action (rojo)
+    dangerHover: '#b91c1c'
+};
+
 export default function FacultyManagement() {
     const [faculties, setFaculties] = useState([]);
     const [editingId, setEditingId] = useState(null);
@@ -49,6 +58,7 @@ export default function FacultyManagement() {
             <div className="max-w-4xl mx-auto mt-10 bg-white p-6 rounded shadow">
                 <h1 className="text-2xl font-bold mb-4">Gestión de Facultades</h1>
 
+                {/* Búsqueda y limpiar */}
                 <div className="flex gap-2 mb-4">
                     <input
                         type="text"
@@ -59,12 +69,16 @@ export default function FacultyManagement() {
                     />
                     <button
                         onClick={() => setSearchTerm('')}
-                        className="bg-gray-300 px-3 rounded"
+                        className="px-3 rounded font-semibold transition"
+                        style={{ backgroundColor: C.tealLight, color: 'white' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealLight}
                     >
                         Limpiar
                     </button>
                 </div>
 
+                {/* Alta / Edición */}
                 <div className="flex gap-2 mb-6">
                     <input
                         type="text"
@@ -76,7 +90,10 @@ export default function FacultyManagement() {
                     {editingId == null ? (
                         <button
                             onClick={saveNew}
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                            className="px-4 py-2 rounded font-semibold transition"
+                            style={{ backgroundColor: C.tealMid, color: 'white' }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealMid}
                         >
                             Añadir
                         </button>
@@ -84,13 +101,19 @@ export default function FacultyManagement() {
                         <>
                             <button
                                 onClick={() => saveEdit(editingId)}
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                className="px-4 py-2 rounded font-semibold transition"
+                                style={{ backgroundColor: C.tealMid, color: 'white' }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealMid}
                             >
                                 Guardar
                             </button>
                             <button
                                 onClick={cancelEdit}
-                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                                className="px-4 py-2 rounded font-semibold transition"
+                                style={{ backgroundColor: C.tealLight, color: 'white' }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealLight}
                             >
                                 Cancelar
                             </button>
@@ -98,6 +121,7 @@ export default function FacultyManagement() {
                     )}
                 </div>
 
+                {/* Tabla de facultades */}
                 <table className="w-full table-auto border text-left">
                     <thead className="bg-gray-100">
                     <tr>
@@ -119,23 +143,31 @@ export default function FacultyManagement() {
                                     f.facultyName
                                 )}
                             </td>
-                            <td className="p-2 space-x-2">
-                                {editingId !== f.facultyId && (
-                                    <>
-                                        <button
-                                            onClick={() => startEdit(f)}
-                                            className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => remove(f.facultyId)}
-                                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </>
-                                )}
+                            <td className="p-2">
+                                <div className="flex items-center gap-2">
+                                    {editingId !== f.facultyId && (
+                                        <>
+                                            <button
+                                                onClick={() => startEdit(f)}
+                                                className="px-3 py-1 rounded font-semibold transition"
+                                                style={{ backgroundColor: C.tealDark, color: 'white' }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.tealMid}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.tealDark}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                onClick={() => remove(f.facultyId)}
+                                                className="px-3 py-1 rounded font-semibold transition"
+                                                style={{ backgroundColor: C.danger, color: 'white' }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = C.dangerHover}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = C.danger}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </td>
                         </tr>
                     ))}

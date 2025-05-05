@@ -2,51 +2,63 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 
-const BAR_HEIGHT = 64; // Tailwind h‑16
+const BAR_HEIGHT = 64; // Tailwind h-16
 
-const AdminLayout = ({ children }) => {
-  /* asegura que el body nunca quede oculto tras la barra fija */
-  useEffect(() => {
-    document.body.style.paddingTop = `${BAR_HEIGHT}px`;
-    return () => (document.body.style.paddingTop = '');
-  }, []);
+// Degradado por defecto
+const DEFAULT_BG = 'linear-gradient(180deg, #eaf6f7 0%, #c7e1e3 40%, #9cc8cb 100%)';
 
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = '/login';
-  };
+const C = {
+    tealDark:    '#0b545b',  // barra superior
+    orange:      '#f98806',  // botón logout
+    orangeHover: '#d47104',
+};
 
-  return (
-      <div className="min-h-screen">
-        {/* Barra superior translúcida, fija y con blur */}
-        <nav
-            className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 h-16 text-white backdrop-blur-md"
-            style={{ backgroundColor: 'rgba(45,46,60,255)' }} /* #2d2e3c + 85 % */
-        >
-          <div className="flex space-x-6 text-sm sm:text-base font-semibold">
-            <Link to="/admin/dashboard" className="hover:text-[#f98806]">
-              📊 Dashboard
-            </Link>
-            <Link to="/admin/users" className="hover:text-[#f98806]">
-              👥 Usuarios
-            </Link>
-            <Link to="/admin/students" className="hover:text-[#f98806]">
-              🎓 Estudiantes
-            </Link>
-          </div>
+const AdminLayout = ({ children, disableGradient = false }) => {
+    useEffect(() => {
+        document.body.style.paddingTop = `${BAR_HEIGHT}px`;
+        return () => { document.body.style.paddingTop = ''; };
+    }, []);
 
-          <button
-              onClick={logout}
-              className="px-3 py-1 rounded-md font-semibold bg-[#f98806] hover:bg-[#d47104] transition"
-          >
-            Cerrar Sesión
-          </button>
-        </nav>
+    const logout = () => {
+        localStorage.clear();
+        window.location.href = '/login';
+    };
 
-        {/* contenido principal */}
-        <main className="p-4">{children}</main>
-      </div>
-  );
+    return (
+        <div className="min-h-screen flex flex-col">
+            {/* Barra fija */}
+            <nav
+                className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 h-16 text-white backdrop-blur-md"
+                style={{ backgroundColor: C.tealDark }}
+            >
+                <div className="flex space-x-6 text-sm sm:text-base font-semibold">
+                    <Link to="/admin/dashboard" className="hover:text-[#f98806]">📊 Dashboard</Link>
+                    <Link to="/admin/users"     className="hover:text-[#f98806]">👥 Usuarios</Link>
+                    <Link to="/admin/students"  className="hover:text-[#f98806]">🎓 Estudiantes</Link>
+                </div>
+                <button
+                    onClick={logout}
+                    className="px-3 py-1 rounded-md font-semibold transition"
+                    style={{ backgroundColor: C.orange }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = C.orangeHover}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = C.orange}
+                >
+                    Cerrar Sesión
+                </button>
+            </nav>
+
+            {/* Main: si disableGradient, fondo transparente, si no, degradado */}
+            <main
+                className="flex-grow"
+                style={{
+                    background: disableGradient ? 'none' : DEFAULT_BG,
+                    minHeight: `calc(100vh - ${BAR_HEIGHT}px)`
+                }}
+            >
+                {children}
+            </main>
+        </div>
+    );
 };
 
 export default AdminLayout;
