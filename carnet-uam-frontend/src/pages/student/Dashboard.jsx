@@ -2,14 +2,27 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { format, parse } from 'date-fns';
+import { format, parseISO, parse } from 'date-fns';
 import StudentLayout from '../../layouts/StudentLayout';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  const parsed = parse(dateStr, 'dd-MM-yyyy HH:mm', new Date());
-  if (isNaN(parsed)) return dateStr;
-  return format(parsed, 'dd-MM-yyyy HH:mm');
+
+  let dt;
+  // Si viene en formato ISO “YYYY-MM-DDTHH:mm…”
+  if (dateStr.includes('T')) {
+    dt = parseISO(dateStr);
+  } else {
+    // Si viene en “dd-MM-yyyy HH:mm”
+    dt = parse(dateStr, 'dd-MM-yyyy HH:mm', new Date());
+  }
+
+  // Si parse falla, devolvemos la cadena original
+  if (isNaN(dt)) {
+    return dateStr;
+  }
+
+  return format(dt, 'dd-MM-yyyy HH:mm');
 }
 
 const StudentDashboard = () => {
