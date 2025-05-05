@@ -1,3 +1,4 @@
+// src/pages/admin/StudentIdCardPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -7,18 +8,24 @@ export default function StudentIdCard() {
     const { cif } = useParams();
     const [idCards, setIdCards] = useState([]);
     const [requirements, setRequirements] = useState([]);
+    const [student, setStudent] = useState([])
     const [expandedIndex, setExpandedIndex] = useState(null);
+
+
+    // Tomamos el nombre completo del primer registro
+    const studentName = student.length ? `${student[0].names} ${student[0].surnames}` : '';
 
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [idcRes, reqRes] = await Promise.all([
+                const [idcRes, reqRes, stdRes] = await Promise.all([
                     axios.get('http://localhost:8087/uam-carnet-sys/idcard'),
                     axios.get('http://localhost:8087/uam-carnet-sys/requirement'),
+                    axios.get('http://localhost:8087/uam-carnet-sys/student')
                 ]);
-                // Filtra por CIF
                 setIdCards(idcRes.data.filter(i => i.cif === cif));
                 setRequirements(reqRes.data.filter(r => r.cif === cif));
+                setStudent(stdRes.data.filter(s => s.cif === cif));
             } catch (err) {
                 console.error('Error al cargar datos de carnet:', err);
             }
@@ -33,7 +40,7 @@ export default function StudentIdCard() {
     return (
         <AdminLayout>
             <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
-                <h1 className="text-2xl font-bold mb-4">Solicitudes de Carnet de {cif}</h1>
+                <h1 className="text-2xl font-bold mb-4">Solicitudes de Carnet de {studentName}</h1>
                 <Link to="/admin/students" className="text-blue-600 hover:underline mb-6 block">
                     ← Volver a Estudiantes
                 </Link>
@@ -45,7 +52,6 @@ export default function StudentIdCard() {
                 <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
                     {idCards.map((i, idx) => (
                         <div key={i.idCardId} className="border rounded-lg">
-                            {/* Header del accordion */}
                             <button
                                 onClick={() => toggleExpand(idx)}
                                 className="w-full text-left p-4 bg-gray-100 hover:bg-gray-200 flex justify-between items-center rounded-t-lg"
@@ -56,18 +62,17 @@ export default function StudentIdCard() {
                                 <span>{expandedIndex === idx ? '−' : '+'}</span>
                             </button>
 
-                            {/* Contenido expandido */}
                             {expandedIndex === idx && (
                                 <div className="p-4 bg-white space-y-4 rounded-b-lg">
-                                    {/* Datos básicos del estudiante */}
+                                    {/* Información del Estudiante */}
                                     <section>
                                         <h2 className="text-lg font-medium mb-1">Información del Estudiante</h2>
                                         <p><strong>Nombre:</strong> {i.names} {i.surnames}</p>
-                                        <p><strong>Carrera seleccionada:</strong> {i.selectedDegreeName}</p>
-                                        <p><strong>Facultad seleccionada:</strong> {i.selectedFacultyName}</p>
+                                        <p><strong>Carrera:</strong> {i.selectedDegreeName}</p>
+                                        <p><strong>Facultad:</strong> {i.selectedFacultyName}</p>
                                     </section>
 
-                                    {/* Detalles de la solicitud */}
+                                    {/* Detalles de la Solicitud */}
                                     <section>
                                         <h2 className="text-lg font-medium mb-1">Detalles de la Solicitud</h2>
                                         <p><strong>Emisión:</strong> {i.issueDate}</p>
@@ -76,7 +81,7 @@ export default function StudentIdCard() {
                                         <p><strong>Notas:</strong> {i.notes}</p>
                                     </section>
 
-                                    {/* Requisito de pago */}
+                                    {/* Requisito de Pago */}
                                     <section>
                                         <h2 className="text-lg font-medium mb-1">Requisito de Pago</h2>
                                         <p>
@@ -95,6 +100,7 @@ export default function StudentIdCard() {
                                     {/* Fotografía */}
                                     <section>
                                         <h2 className="text-lg font-medium mb-1">Fotografía</h2>
+                                        <p><strong>Fecha agendada:</strong> {i.photoAppointment}</p>
                                         <p>
                                             <strong>Enlace a la foto:</strong>{' '}
                                             <a
