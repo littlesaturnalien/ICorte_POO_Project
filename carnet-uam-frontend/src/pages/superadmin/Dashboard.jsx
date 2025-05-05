@@ -1,72 +1,78 @@
-// src/pages/superadmin/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import SuperadminLayout from '../../layouts/SuperadminLayout';
 import axios from 'axios';
 
+/* Palette */
+const C = {
+    tealLight: '#4da4ab', // Facultades / Carreras
+    tealMid:   '#487e84', // Dashboards
+    tealDark:  '#0b545b', // Encabezado
+};
+
+/* Card – mismo ancho para todos */
+const Tile = ({ to, color, children }) => (
+    <Link
+        to={to}
+        className="inline-block w-64 text-white text-center font-semibold py-8 px-8 rounded-2xl transition transform hover:scale-105 hover:shadow-xl border border-transparent"
+        style={{ backgroundColor: color }}
+    >
+        <span className="text-lg leading-tight block">{children}</span>
+    </Link>
+);
+
 const SuperadminDashboardContent = () => {
     const cif = localStorage.getItem('cif');
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const fetchSelf = async () => {
+        (async () => {
             try {
-                // Usamos el endpoint de admin para cargar el superadmin por CIF
-                const res = await axios.get(`http://localhost:8087/uam-carnet-sys/admin/byCif=${cif}`);
-                const payload = res.data;
-                const userObj =
-                    payload.data !== undefined
-                        ? (Array.isArray(payload.data) ? payload.data[0] : payload.data)
-                        : payload;
-                setUser(userObj);
+                const { data } = await axios.get(
+                    `http://localhost:8087/uam-carnet-sys/admin/byCif=${cif}`,
+                );
+                const u = data?.data !== undefined ? (Array.isArray(data.data) ? data.data[0] : data.data) : data;
+                setUser(u);
             } catch (err) {
                 console.error('Error cargando datos del superadmin:', err);
             }
-        };
-        fetchSelf();
+        })();
     }, [cif]);
 
-    if (!user) {
+    if (!user)
         return (
             <SuperadminLayout>
-                <div className="text-center mt-10">Cargando...</div>
+                <div className="text-center mt-10">Cargando…</div>
             </SuperadminLayout>
         );
-    }
 
     const fullName = `${user.names} ${user.surnames}`.trim();
 
     return (
         <SuperadminLayout>
-            <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
-                <h1 className="text-2xl font-bold mb-2">Bienvenido/a, {fullName}</h1>
-                <h2 className="text-xl font-semibold mb-6">Panel de Superadministrador</h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Link
-                        to="/admin/dashboard"
-                        className="block p-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center font-semibold"
-                    >
-                        Ir al Dashboard de Admin
-                    </Link>
-                    <Link
-                        to="/student/dashboard"
-                        className="block p-6 bg-green-600 hover:bg-green-700 text-white rounded-lg text-center font-semibold"
-                    >
-                        Ir al Dashboard de Estudiante
-                    </Link>
-                    <Link
-                        to="/superadmin/faculties"
-                        className="block p-6 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-center font-semibold"
-                    >
-                        🏛 Gestión de Facultades
-                    </Link>
-                    <Link
-                        to="/superadmin/degrees"
-                        className="block p-6 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-center font-semibold"
-                    >
-                        🎓 Gestión de Carreras
-                    </Link>
+            <div
+                className="min-h-screen w-full"
+                style={{ background: 'linear-gradient(180deg, #eaf6f7 0%, #c7e1e3 40%, #9cc8cb 100%)' }}
+            >
+                <div className="max-w-5xl mx-auto px-4 py-16">
+                    {/* Encabezado */}
+                    <div className="text-white p-10 rounded-2xl shadow-lg mb-12" style={{ backgroundColor: C.tealDark }}>
+                        <h1 className="text-4xl font-bold mb-2">Bienvenido/a, {fullName}</h1>
+                        <p className="opacity-80 text-lg">Panel de Superadministrador</p>
+                    </div>
+
+                    {/* Tarjetas */}
+                    <div className="space-y-12">
+                        <div className="flex flex-col sm:flex-row gap-8 justify-center">
+                            <Tile to="/admin/dashboard"   color={C.tealMid}>Dashboard Admin</Tile>
+                            <Tile to="/student/dashboard" color={C.tealMid}>Dashboard Estudiante</Tile>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-8 justify-center">
+                            <Tile to="/superadmin/faculties" color={C.tealLight}>🏛 Facultades</Tile>
+                            <Tile to="/superadmin/degrees"   color={C.tealLight}>🎓 Carreras</Tile>
+                        </div>
+                    </div>
                 </div>
             </div>
         </SuperadminLayout>
