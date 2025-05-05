@@ -7,6 +7,14 @@ import AdminLayout from '../../layouts/AdminLayout';
 const API = 'http://localhost:8087/uam-carnet-sys';
 const STATUS_OPTS = ['PENDING','APPROVED','REJECTED','DELIVERED','EMITTED'];
 
+/* Paleta de colores personalizada */
+const C = {
+    tealLight: '#4da4ab',
+    tealMid: '#487e84',
+    tealDark: '#0b545b',
+    black: '#2d2e3c'
+};
+
 /* helpers fecha */
 const toISODate = d=>{
     if(!d) return '';
@@ -24,7 +32,6 @@ export default function StudentIdCardPage(){
     const [stu,setStu]=useState([]);    const [edit,setEdit]=useState({});
     const [open,setOpen]=useState(null);
 
-    /* cargar */
     const load=async()=>{
         const [cRes,rRes,sRes]=await Promise.all([
             axios.get(`${API}/idcard`),
@@ -41,7 +48,7 @@ export default function StudentIdCardPage(){
             st[cd.idCardId]={
                 status:cd.status,
                 notes: cd.notes||'',
-                issueDate: toISODate(cd.issueDate),          // yyyy‑MM‑dd
+                issueDate: toISODate(cd.issueDate),
                 deliveryAppointment: b2iso(cd.deliveryAppointment),
                 pictureId: cd.picture_id,
                 pictureUrl: cd.picture_url||'',
@@ -56,13 +63,12 @@ export default function StudentIdCardPage(){
 
     const keepOpen=i=>setOpen(i);
 
-    /* guardar carnet */
     const saveCard=async(cd,idx)=>{
         const e=edit[cd.idCardId];
         try{
             const dates={};
             if(e.issueDate && e.issueDate!==toISODate(cd.issueDate))
-                dates.issueDate=e.issueDate;                        // ISO
+                dates.issueDate=e.issueDate;
             if(e.deliveryAppointment &&
                 iso2b(e.deliveryAppointment)!==cd.deliveryAppointment)
                 dates.deliveryAppointment=iso2b(e.deliveryAppointment);
@@ -81,22 +87,15 @@ export default function StudentIdCardPage(){
         }catch(err){console.error(err);alert('❌ Error al guardar carnet');}
     };
 
-    /* guardar foto */
     const savePic = async (cd, idx) => {
         const e = edit[cd.idCardId];
-        if (!e.requirementId) {
-            return alert('requirementId faltante');
-        }
+        if (!e.requirementId) return alert('requirementId faltante');
         try {
-            // 1. Obtener el requirement para extraer pictureId
             const reqRes = await axios.get(`${API}/requirement/${e.requirementId}`);
             const reqObj = reqRes.data.data ?? reqRes.data;
             const picId  = reqObj.pictureId;
-            if (!picId) {
-                return alert('pictureId no encontrado en el requirement');
-            }
+            if (!picId) return alert('pictureId no encontrado en el requirement');
 
-            // 2. Hacer PUT con el pictureId correcto
             await axios.put(`${API}/picture/${picId}`, {
                 ...(e.photoAppointment && { photoAppointment: iso2b(e.photoAppointment) }),
                 cif: cd.cif,
@@ -104,16 +103,13 @@ export default function StudentIdCardPage(){
             });
 
             alert('✅ Foto guardada');
-            await load();
-            keepOpen(idx);
+            await load(); keepOpen(idx);
         } catch (err) {
             console.error(err);
             alert('❌ Error al guardar foto');
         }
     };
 
-
-    /* guardar comprobante */
     const saveReq=async(cd,idx)=>{
         const e=edit[cd.idCardId];
         if(!e.requirementId)return alert('requirementId faltante');
@@ -131,7 +127,7 @@ export default function StudentIdCardPage(){
         <AdminLayout>
             <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
                 <h1 className="text-2xl font-bold mb-4">Solicitudes de Carnet de {studentName}</h1>
-                <Link to="/admin/students" className="text-blue-600 underline mb-6 block">
+                <Link to="/admin/students" className="text-[#0b545b] underline mb-6 block">
                     ← Volver a Estudiantes
                 </Link>
 
@@ -144,9 +140,9 @@ export default function StudentIdCardPage(){
                             <div key={c.idCardId} className="border rounded-lg">
                                 <button onClick={()=>setOpen(open===i?null:i)}
                                         className="w-full p-4 bg-gray-100 flex justify-between">
-                  <span className="font-semibold">
-                    Semestre {c.semester} {c.year} — {c.status}
-                  </span>
+                                    <span className="font-semibold">
+                                        Semestre {c.semester} {c.year} — {c.status}
+                                    </span>
                                     <span>{open===i?'−':'+'}</span>
                                 </button>
 
@@ -182,7 +178,8 @@ export default function StudentIdCardPage(){
                                                           onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,notes:ev.target.value}})}/>
                                             </div>
                                             <button onClick={()=>saveCard(c,i)}
-                                                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                                                    className="text-white px-3 py-1 rounded"
+                                                    style={{ backgroundColor: C.tealMid }}>
                                                 Guardar Carnet
                                             </button>
                                         </section>
@@ -203,13 +200,14 @@ export default function StudentIdCardPage(){
                                                        onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,photoAppointment:ev.target.value}})}/>
                                             </div>
                                             <button onClick={()=>savePic(c,i)}
-                                                    className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
+                                                    className="text-white px-3 py-1 rounded"
+                                                    style={{ backgroundColor: C.tealLight }}>
                                                 Guardar Foto
                                             </button>
                                             {e.pictureUrl&&(
                                                 <p className="mt-1">
                                                     <a href={e.pictureUrl} target="_blank" rel="noreferrer"
-                                                       className="text-blue-600 underline">Ver foto actual</a>
+                                                       className="text-[#0b545b] underline">Ver foto actual</a>
                                                 </p>
                                             )}
                                         </section>
@@ -224,13 +222,14 @@ export default function StudentIdCardPage(){
                                                        onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,paymentProofUrl:ev.target.value}})}/>
                                             </div>
                                             <button onClick={()=>saveReq(c,i)}
-                                                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                                                    className="text-white px-3 py-1 rounded"
+                                                    style={{ backgroundColor: C.tealDark }}>
                                                 Guardar Comprobante
                                             </button>
                                             {e.paymentProofUrl&&(
                                                 <p className="mt-1">
                                                     <a href={e.paymentProofUrl} target="_blank" rel="noreferrer"
-                                                       className="text-blue-600 underline">Ver comprobante actual</a>
+                                                       className="text-[#0b545b] underline">Ver comprobante actual</a>
                                                 </p>
                                             )}
                                         </section>

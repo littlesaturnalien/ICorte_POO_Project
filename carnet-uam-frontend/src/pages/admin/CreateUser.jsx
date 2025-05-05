@@ -4,6 +4,13 @@ import axios from 'axios';
 import AdminLayout from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';
 
+const C = {
+    tealLight: '#4da4ab',
+    tealMid: '#487e84',
+    tealDark: '#0b545b',
+    black: '#2d2e3c'
+};
+
 const CreateUser = () => {
     const [degrees, setDegrees] = useState([]);
     const [showDropdown1, setShowDropdown1] = useState(false);
@@ -49,9 +56,7 @@ const CreateUser = () => {
             alert("Debes seleccionar al menos una carrera obligatoria");
             return;
         }
-        const degreesToSend = selectedDegree2
-            ? [selectedDegree1, selectedDegree2]
-            : [selectedDegree1];
+        const degreesToSend = selectedDegree2 ? [selectedDegree1, selectedDegree2] : [selectedDegree1];
         try {
             await axios.post('http://localhost:8087/uam-carnet-sys/user/create', {
                 ...formData,
@@ -111,48 +116,31 @@ const CreateUser = () => {
             <div className="max-w-4xl mx-auto mt-10 bg-white p-6 rounded shadow">
                 <h2 className="text-2xl font-bold mb-4">Crear Nuevo Usuario</h2>
                 <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-                    <input
-                        type="text"
-                        required
-                        placeholder="CIF"
-                        value={formData.cif}
-                        onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
-                        className="border px-3 py-2 rounded"
+                    <input type="text" required placeholder="CIF"
+                           value={formData.cif}
+                           onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
+                           className="border px-3 py-2 rounded"
                     />
-                    <input
-                        type="password"
-                        required
-                        placeholder="PASSWORD"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="border px-3 py-2 rounded"
+                    <input type="password" required placeholder="CONTRASEÑA"
+                           value={formData.password}
+                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                           className="border px-3 py-2 rounded"
                     />
-                    <input
-                        type="text"
-                        required
-                        placeholder="NAMES"
-                        value={formData.names}
-                        onChange={(e) => setFormData({ ...formData, names: e.target.value })}
-                        className="border px-3 py-2 rounded"
+                    <input type="text" required placeholder="NOMBRES"
+                           value={formData.names}
+                           onChange={(e) => setFormData({ ...formData, names: e.target.value })}
+                           className="border px-3 py-2 rounded"
                     />
-                    <input
-                        type="text"
-                        required
-                        placeholder="SURNAMES"
-                        value={formData.surnames}
-                        onChange={(e) => setFormData({ ...formData, surnames: e.target.value })}
-                        className="border px-3 py-2 rounded"
+                    <input type="text" required placeholder="APELLIDOS"
+                           value={formData.surnames}
+                           onChange={(e) => setFormData({ ...formData, surnames: e.target.value })}
+                           className="border px-3 py-2 rounded"
                     />
-                    <input
-                        type="email"
-                        required
-                        placeholder="EMAIL"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="border px-3 py-2 rounded"
+                    <input type="email" required placeholder="EMAIL"
+                           value={formData.email}
+                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                           className="border px-3 py-2 rounded"
                     />
-
-                    {/* Rol predefinido */}
                     <select
                         value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -166,7 +154,6 @@ const CreateUser = () => {
                         <option value="STUDENT">STUDENT</option>
                     </select>
 
-                    {/* Tipo predefinido */}
                     <select
                         value={formData.type}
                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
@@ -187,7 +174,6 @@ const CreateUser = () => {
                         refEl: dropdownRef1,
                         isRequired: true,
                     })}
-
                     {renderDropdown({
                         label: 'Carrera secundaria (opcional)',
                         selected: selectedDegree2,
@@ -201,14 +187,16 @@ const CreateUser = () => {
                     <div className="col-span-2 flex justify-end gap-2 mt-4">
                         <button
                             type="submit"
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                            className="text-white px-4 py-2 rounded hover:opacity-90"
+                            style={{ backgroundColor: C.tealMid }}
                         >
                             Guardar
                         </button>
                         <button
                             type="button"
                             onClick={() => navigate('/admin/users')}
-                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                            className="text-white px-4 py-2 rounded hover:opacity-90"
+                            style={{ backgroundColor: C.black }}
                         >
                             Cancelar
                         </button>

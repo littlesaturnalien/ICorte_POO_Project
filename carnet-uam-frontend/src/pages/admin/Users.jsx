@@ -4,17 +4,24 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../../layouts/AdminLayout';
 
-const roleOptions  = ['ALL', 'SUPERADMIN', 'ADMIN', 'STUDENT', 'BLOCKED'];
-const typeOptions  = ['ALL', 'PROFESOR', 'ESTUDIANTE'];   // Ajusta según tus valores reales
+// Paleta personalizada
+const C = {
+  tealLight: '#4da4ab',
+  tealMid:   '#487e84',
+  tealDark:  '#0b545b',
+  black:     '#2d2e3c',
+};
+
+const roleOptions = ['ALL', 'SUPERADMIN', 'ADMIN', 'STUDENT', 'BLOCKED'];
+const typeOptions = ['ALL', 'PROFESOR', 'ESTUDIANTE'];
 
 const AdminUsers = () => {
-  const [allUsers, setAllUsers]       = useState([]);
-  const [search, setSearch]           = useState('');
-  const [roleFilter, setRoleFilter]   = useState('ALL');
-  const [typeFilter, setTypeFilter]   = useState('ALL');
+  const [allUsers, setAllUsers] = useState([]);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('ALL');
+  const [typeFilter, setTypeFilter] = useState('ALL');
   const navigate = useNavigate();
 
-  /* ──────────── Fetch inicial ──────────── */
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -27,42 +34,46 @@ const AdminUsers = () => {
     fetchUsers();
   }, []);
 
-  /* ──────────── Filtro derivado ──────────── */
   const filteredUsers = useMemo(() => {
     const term = search.trim().toLowerCase();
-
     return allUsers.filter(u => {
-      /* texto libre */
       const matchesText =
           !term ||
           u.cif.toLowerCase().includes(term) ||
           u.names.toLowerCase().includes(term) ||
           u.surnames.toLowerCase().includes(term);
 
-      /* rol */
-      const matchesRole =
-          roleFilter === 'ALL' || u.role === roleFilter;
-
-      /* tipo */
-      const matchesType =
-          typeFilter === 'ALL' || u.type?.toUpperCase() === typeFilter;
+      const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
+      const matchesType = typeFilter === 'ALL' || u.type?.toUpperCase() === typeFilter;
 
       return matchesText && matchesRole && matchesType;
     });
   }, [allUsers, search, roleFilter, typeFilter]);
 
-  /* ──────────── Acciones (delete / promote / revoke) ──────────── */
-  const deleteUser = async cif => { /* …igual que antes… */ };
-  const promoteToAdmin = async cif => { /* …igual… */ };
-  const revokeAdmin   = async cif => { /* …igual… */ };
+  const deleteUser = async cif => {
+    if (window.confirm('¿Eliminar este usuario?')) {
+      await axios.delete(`http://localhost:8087/uam-carnet-sys/user/${cif}`);
+      setAllUsers(prev => prev.filter(u => u.cif !== cif));
+    }
+  };
 
-  /* ──────────── Render ──────────── */
+  const promoteToAdmin = async cif => {
+    await axios.patch(`http://localhost:8087/uam-carnet-sys/user/${cif}/promote`);
+    alert('✅ Usuario promovido a ADMIN');
+    window.location.reload();
+  };
+
+  const revokeAdmin = async cif => {
+    await axios.patch(`http://localhost:8087/uam-carnet-sys/user/${cif}/revoke`);
+    alert('⚠️ Rol ADMIN revocado');
+    window.location.reload();
+  };
+
   return (
       <AdminLayout>
         <div className="max-w-6xl mx-auto mt-10 p-6 bg-white rounded shadow">
           <h1 className="text-2xl font-bold mb-6">Gestión de Usuarios</h1>
 
-          {/* --- Barra de filtros --- */}
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <input
                 type="text"
@@ -72,7 +83,6 @@ const AdminUsers = () => {
                 className="border px-3 py-2 rounded flex-grow min-w-[200px]"
             />
 
-            {/* Filtro de Rol */}
             <select
                 value={roleFilter}
                 onChange={e => setRoleFilter(e.target.value)}
@@ -83,7 +93,6 @@ const AdminUsers = () => {
               ))}
             </select>
 
-            {/* Filtro de Tipo */}
             <select
                 value={typeFilter}
                 onChange={e => setTypeFilter(e.target.value)}
@@ -96,13 +105,13 @@ const AdminUsers = () => {
 
             <button
                 onClick={() => navigate('/admin/createuser')}
-                className="ml-auto bg-green-600 text-white px-4 py-2 rounded"
+                className="ml-auto text-white px-4 py-2 rounded"
+                style={{ backgroundColor: C.tealDark }}
             >
               Crear Usuario
             </button>
           </div>
 
-          {/* --- Tabla --- */}
           <table className="w-full table-auto border text-left">
             <thead className="bg-gray-100">
             <tr>
@@ -125,33 +134,40 @@ const AdminUsers = () => {
                   <td className="p-2 space-x-2">
                     <button
                         onClick={() => deleteUser(u.cif)}
-                        className="bg-red-600 text-white px-3 py-1 rounded">
+                        className="text-white px-3 py-1 rounded"
+                        style={{ backgroundColor: '#c0392b' }}
+                    >
                       Eliminar
                     </button>
                     <button
                         onClick={() => navigate(`/admin/editUser/${u.cif}`)}
-                        className="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
+                        className="text-white px-3 py-1 rounded"
+                        style={{ backgroundColor: C.tealMid }}
+                    >
                       Editar
                     </button>
 
                     {['STUDENT', 'BLOCKED'].includes(u.role) && (
                         <button
                             onClick={() => promoteToAdmin(u.cif)}
-                            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                            className="text-white px-3 py-1 rounded"
+                            style={{ backgroundColor: C.tealDark }}
+                        >
                           Promover a Admin
                         </button>
                     )}
                     {u.role === 'ADMIN' && (
                         <button
                             onClick={() => revokeAdmin(u.cif)}
-                            className="bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700">
+                            className="text-white px-3 py-1 rounded"
+                            style={{ backgroundColor: '#f39c12' }}
+                        >
                           Revocar Admin
                         </button>
                     )}
                   </td>
                 </tr>
             ))}
-
             {!filteredUsers.length && (
                 <tr>
                   <td colSpan={6} className="text-center py-4 text-gray-500">

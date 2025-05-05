@@ -4,16 +4,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import AdminLayout from '../../layouts/AdminLayout';
 
+const C = {
+    tealLight: '#4da4ab',
+    tealMid: '#487e84',
+    tealDark: '#0b545b',
+    black: '#2d2e3c'
+};
+
 const EditUserPage = () => {
     const { cif } = useParams();
     const navigate = useNavigate();
 
-    const [user, setUser]                 = useState(null);
-    const [degrees, setDegrees]           = useState([]);
+    const [user, setUser] = useState(null);
+    const [degrees, setDegrees] = useState([]);
     const [selectedDegreeToAdd, setSelectedDegreeToAdd] = useState('');
-    const [newPassword, setNewPassword]   = useState('');
+    const [newPassword, setNewPassword] = useState('');
 
-    /* ───────────────── helpers ───────────────── */
     const fetchUser = async () => {
         try {
             const { data } = await axios.get(
@@ -86,10 +92,8 @@ const EditUserPage = () => {
         );
     }
 
-    /* ──────────── límite de carreras ──────────── */
     const reachedLimit = (user.studies?.length || 0) >= 2;
 
-    /* ───────────────── render ───────────────── */
     return (
         <AdminLayout>
             <div className="max-w-4xl mx-auto mt-10 bg-white p-6 rounded shadow">
@@ -97,7 +101,6 @@ const EditUserPage = () => {
                     Editar Usuario: {user.names} {user.surnames}
                 </h2>
 
-                {/* ── datos básicos ── */}
                 <div className="mb-6 space-y-1">
                     <p><strong>CIF:</strong> {user.cif}</p>
                     <p><strong>Correo:</strong> {user.email}</p>
@@ -105,7 +108,6 @@ const EditUserPage = () => {
                     <p><strong>Tipo:</strong> {user.type}</p>
                 </div>
 
-                {/* ── actualizar contraseña ── */}
                 <div className="mb-6">
                     <label className="block font-medium mb-1">Nueva Contraseña</label>
                     <div className="flex gap-2">
@@ -118,29 +120,25 @@ const EditUserPage = () => {
                         />
                         <button
                             onClick={updatePassword}
-                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            style={{ backgroundColor: C.tealMid }}
+                            className="text-white px-4 py-2 rounded hover:opacity-90"
                         >
                             Actualizar
                         </button>
                     </div>
                 </div>
 
-                {/* ── carreras actuales ── */}
                 <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2">Carreras actuales</h3>
                     {user.studies?.length ? (
                         <ul className="list-disc ml-6 space-y-1">
                             {user.studies.map(s => (
-                                <li
-                                    key={s.degreeId}
-                                    className="flex items-center justify-between"
-                                >
-                  <span>
-                    {s.degreeName} — {s.facultyName}
-                  </span>
+                                <li key={s.degreeId} className="flex items-center justify-between">
+                                    <span>{s.degreeName} — {s.facultyName}</span>
                                     <button
                                         onClick={() => removeDegree(s.degreeId)}
-                                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 ml-4"
+                                        style={{ backgroundColor: '#b91c1c' }} // rojo
+                                        className="text-white px-3 py-1 rounded hover:opacity-90 ml-4"
                                     >
                                         Eliminar
                                     </button>
@@ -148,20 +146,14 @@ const EditUserPage = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-600">
-                            Este usuario no tiene carreras asignadas.
-                        </p>
+                        <p className="text-gray-600">Este usuario no tiene carreras asignadas.</p>
                     )}
                 </div>
 
-                {/* ── agregar carrera ── */}
                 <div className="mb-6">
                     <label className="block font-medium mb-1">Agregar carrera</label>
-
                     {reachedLimit && (
-                        <p className="text-red-600 mb-2">
-                            Este usuario ya tiene el máximo de 2 carreras asignadas.
-                        </p>
+                        <p className="text-red-600 mb-2">Este usuario ya tiene el máximo de 2 carreras asignadas.</p>
                     )}
 
                     <div className="flex gap-2">
@@ -180,19 +172,20 @@ const EditUserPage = () => {
                         </select>
                         <button
                             onClick={addDegree}
-                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
                             disabled={reachedLimit || !selectedDegreeToAdd}
+                            style={{ backgroundColor: C.tealLight }}
+                            className="text-white px-4 py-2 rounded hover:opacity-90 disabled:opacity-50"
                         >
                             Agregar
                         </button>
                     </div>
                 </div>
 
-                {/* ── volver ── */}
                 <div className="text-right">
                     <button
                         onClick={() => navigate('/admin/users')}
-                        className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+                        style={{ backgroundColor: C.black }}
+                        className="text-white px-4 py-2 rounded hover:opacity-90"
                     >
                         Volver
                     </button>

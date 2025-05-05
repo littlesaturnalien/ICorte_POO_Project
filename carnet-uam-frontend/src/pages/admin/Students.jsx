@@ -4,24 +4,22 @@ import axios from 'axios';
 import AdminLayout from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';
 
-const statusOptions = [
-  'ALL',
-  'PENDING',
-  'APPROVED',
-  'REJECTED',
-  'DELIVERED',
-  'EMITTED'
-];
+const statusOptions = ['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'DELIVERED', 'EMITTED'];
+
+const C = {
+  tealLight: '#4da4ab',
+  tealMid: '#487e84',
+  tealDark: '#0b545b',
+  black: '#2d2e3c',
+};
 
 export default function Students() {
   const navigate = useNavigate();
   const [allStudents, setAllStudents] = useState([]);
-
   const [search, setSearch] = useState('');
   const [statusFilter, setStatus] = useState('ALL');
   const [degreeFilter, setDegreeFilter] = useState('ALL');
   const [facultyFilter, setFacultyFilter] = useState('ALL');
-
   const [degreesList, setDegreesList] = useState([]);
   const [facultiesList, setFacultiesList] = useState([]);
 
@@ -29,7 +27,6 @@ export default function Students() {
   const buildDeg = s => s.studies?.map(st => st.degreeName).join('; ') || '—';
   const buildFac = s => s.studies?.map(st => st.facultyName).join('; ') || '—';
 
-  // Elige la solicitud con año más alto
   const buildState = s => {
     const cards = s.idCards || [];
     if (!cards.length) return '—';
@@ -64,13 +61,8 @@ export default function Students() {
       const state = buildState(s);
       const stateMatch = statusFilter === 'ALL' || state === statusFilter;
 
-      const degreeMatch =
-          degreeFilter === 'ALL' ||
-          buildDeg(s).split('; ').includes(degreeFilter);
-
-      const facultyMatch =
-          facultyFilter === 'ALL' ||
-          buildFac(s).split('; ').includes(facultyFilter);
+      const degreeMatch = degreeFilter === 'ALL' || buildDeg(s).split('; ').includes(degreeFilter);
+      const facultyMatch = facultyFilter === 'ALL' || buildFac(s).split('; ').includes(facultyFilter);
 
       return textMatch && stateMatch && degreeMatch && facultyMatch;
     });
@@ -81,6 +73,7 @@ export default function Students() {
         <div className="max-w-6xl mx-auto mt-10 p-6 bg-white rounded shadow">
           <h1 className="text-2xl font-bold mb-4">Estudiantes Registrados</h1>
 
+          {/* Filtros */}
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <input
                 type="text"
@@ -89,42 +82,26 @@ export default function Students() {
                 placeholder="Buscar por CIF, nombre, carrera o facultad…"
                 className="border px-3 py-2 rounded flex-grow min-w-[200px]"
             />
-
-            <select
-                value={degreeFilter}
-                onChange={e => setDegreeFilter(e.target.value)}
-                className="border px-3 py-2 rounded"
-            >
+            <select value={degreeFilter} onChange={e => setDegreeFilter(e.target.value)} className="border px-3 py-2 rounded">
               <option value="ALL">Todas las carreras</option>
               {degreesList.map(deg => (
                   <option key={deg} value={deg}>{deg}</option>
               ))}
             </select>
-
-            <select
-                value={facultyFilter}
-                onChange={e => setFacultyFilter(e.target.value)}
-                className="border px-3 py-2 rounded"
-            >
+            <select value={facultyFilter} onChange={e => setFacultyFilter(e.target.value)} className="border px-3 py-2 rounded">
               <option value="ALL">Todas las facultades</option>
               {facultiesList.map(fac => (
                   <option key={fac} value={fac}>{fac}</option>
               ))}
             </select>
-
-            <select
-                value={statusFilter}
-                onChange={e => setStatus(e.target.value)}
-                className="border px-3 py-2 rounded"
-            >
+            <select value={statusFilter} onChange={e => setStatus(e.target.value)} className="border px-3 py-2 rounded">
               {statusOptions.map(st => (
-                  <option key={st} value={st}>
-                    {st === 'ALL' ? 'Todos los estados' : st}
-                  </option>
+                  <option key={st} value={st}>{st === 'ALL' ? 'Todos los estados' : st}</option>
               ))}
             </select>
           </div>
 
+          {/* Tabla */}
           <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse">
               <thead>
@@ -148,7 +125,8 @@ export default function Students() {
                     <td className="p-2">
                       <button
                           onClick={() => navigate(`/admin/students/${s.cif}/idcard`)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                          className="px-3 py-1 rounded text-white hover:brightness-110"
+                          style={{ backgroundColor: C.tealMid }}
                       >
                         Ver Solicitudes
                       </button>
