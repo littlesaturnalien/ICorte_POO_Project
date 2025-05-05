@@ -7,58 +7,40 @@ import StudentLayout from '../../layouts/StudentLayout';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-
   let dt;
-  // Si viene en formato ISO “YYYY-MM-DDTHH:mm…”
   if (dateStr.includes('T')) {
     dt = parseISO(dateStr);
   } else {
-    // Si viene en “dd-MM-yyyy HH:mm”
     dt = parse(dateStr, 'dd-MM-yyyy HH:mm', new Date());
   }
-
-  // Si parse falla, devolvemos la cadena original
-  if (isNaN(dt)) {
-    return dateStr;
-  }
-
-  return format(dt, 'dd-MM-yyyy HH:mm');
+  return isNaN(dt) ? dateStr : format(dt, 'dd-MM-yyyy HH:mm');
 }
 
-const StudentDashboard = () => {
+export default function StudentDashboard() {
   const [student, setStudent] = useState(null);
-  const [idCard, setIdCard] = useState(null);
+  const [idCards, setIdCards] = useState([]);
   const [picture, setPicture] = useState(null);
-  const [requirement, setRequirement] = useState(null);
+  const [openIdx, setOpenIdx] = useState(null);
 
   const cif = localStorage.getItem('cif');
   const rawRole = localStorage.getItem('role') || '';
   const userRole = rawRole.toLowerCase();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [stuRes, idcRes, picRes, reqRes] = await Promise.all([
-          axios.get(`http://localhost:8087/uam-carnet-sys/student/byCif=${cif}`),
-          axios.get('http://localhost:8087/uam-carnet-sys/idcard'),
-          axios.get('http://localhost:8087/uam-carnet-sys/picture'),
-          axios.get('http://localhost:8087/uam-carnet-sys/requirement'),
-        ]);
-
-        const payload = stuRes.data;
-        const studentObj =
-            payload.data !== undefined
-                ? Array.isArray(payload.data) ? payload.data[0] : payload.data
-                : payload;
-        setStudent(studentObj);
-
-        setIdCard(idcRes.data.find((c) => c.cif === cif) || null);
-        setPicture(picRes.data.find((p) => p.cif === cif) || null);
-        setRequirement(reqRes.data.find((r) => r.cif === cif) || null);
-      } catch (error) {
-        console.error('Error al cargar datos del dashboard:', error);
-      }
-    };
+    async function fetchData() {
+      const [stuRes, idcRes, picRes] = await Promise.all([
+        axios.get(`http://localhost:8087/uam-carnet-sys/student/byCif=${cif}`),
+        axios.get('http://localhost:8087/uam-carnet-sys/idcard'),
+        axios.get('http://localhost:8087/uam-carnet-sys/picture'),
+      ]);
+      const payload = stuRes.data;
+      const stu = payload.data !== undefined
+          ? Array.isArray(payload.data) ? payload.data[0] : payload.data
+          : payload;
+      setStudent(stu);
+      setIdCards(idcRes.data.filter(c => c.cif === cif));
+      setPicture(picRes.data.find(p => p.cif === cif) || null);
+    }
     fetchData();
   }, [cif]);
 
@@ -85,7 +67,7 @@ const StudentDashboard = () => {
             <p className="mt-2 font-semibold">Carrera / Facultad:</p>
             {student.studies?.length ? (
                 <ul className="list-disc ml-6">
-                  {student.studies.map((s) => (
+                  {student.studies.map(s => (
                       <li key={s.degreeId}>
                         {s.degreeName} — <span className="text-gray-500">{s.facultyName}</span>
                       </li>
@@ -96,49 +78,74 @@ const StudentDashboard = () => {
             )}
           </section>
 
-          {/* Estado del Carnet */}
+          {/* Solicitudes de Carnet */}
           <section className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">🪪 Estado del Carnet</h2>
-            {idCard ? (
-                <p className="text-blue-600">Solicitud en proceso (Estado: {idCard.status})</p>
-            ) : (
-                <div className="flex items-center justify-between">
-                  <p className="text-yellow-600">No has solicitado un carnet aún.</p>
-                  <Link
-                      to="/student/requestid"
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                  >
-                    Solicitar Carnet
-                  </Link>
-                </div>
+            <h2 className="text-xl font-semibold mb-2">🪪 Solicitudes de Carnet</h2>
+            {idCards.length === 0 && (
+                <p className="text-gray-500">Aún no has solicitado un carnet.</p>
             )}
+            <div className="space-y-4">
+              {idCards.map((c, idx) => (
+                  <div key={c.idCardId} className="border rounded-lg">
+                    <button
+                        onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+                        className="w-full p-4 bg-gray-100 hover:bg-gray-200 flex justify-between items-center rounded-t-lg"
+                    >
+                  <span className="font-semibold">
+                    Semestre {c.semester} {c.year} — {c.status}
+                  </span>
+                      <span>{openIdx === idx ? '−' : '+'}</span>
+                    </button>
+                    {openIdx === idx && (
+                        <div className="p-4 bg-white space-y-2 rounded-b-lg">
+                          <p><strong>Entrega agendada:</strong> {formatDate(c.deliveryAppointment)}</p>
+                          {c.notes && <p><strong>Observaciones:</strong> {c.notes}</p>}
+                        </div>
+                    )}
+                  </div>
+              ))}
+            </div>
+            <div className="text-right mt-4">
+              <Link
+                  to="/student/requestid"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Solicitar Carnet
+              </Link>
+            </div>
           </section>
 
-          {/* Fotografía y Cita */}
+          {/* Fotografía */}
           <section className="mb-6">
             <h2 className="text-xl font-semibold mb-2">📷 Fotografía</h2>
-            {idCard?.deliveryAppointment ? (
-                <p>Cita agendada: {formatDate(idCard.deliveryAppointment)}</p>
-            ) : picture ? (
-                <>
-                  <p>Foto subida: {formatDate(picture.uploadedAt)}</p>
-                  <a href={picture.photoUrl} target="_blank" rel="noreferrer">
+            {picture ? (
+                <div className="flex flex-wrap items-center gap-4">
+              <span>
+                <strong>Foto subida:</strong> {formatDate(picture.uploadedAt)}
+              </span>
+                  <Link
+                      to={picture.photoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 hover:underline"
+                  >
                     Ver imagen
-                  </a>
-                </>
+                  </Link>
+                  <span>
+                <strong>Cita agendada:</strong> {formatDate(picture.photoAppointment)}
+              </span>
+                </div>
             ) : (
-                <p className="text-yellow-600">
-                  Aún no has agendado cita ni subido foto.
-                </p>
+                <p className="text-yellow-600">Aún no has agendado cita ni subido foto.</p>
             )}
           </section>
 
-          {/* Botón Volver a Superadmin */}
+          {/* Volver a Superadmin */}
           {userRole === 'superadmin' && (
               <div className="text-right">
                 <Link
                     to="/superadmin/dashboard"
-                    className="inline-block bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+                    className="inline-block bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800"
                 >
                   ← Volver a Superadmin
                 </Link>
@@ -147,6 +154,4 @@ const StudentDashboard = () => {
         </div>
       </StudentLayout>
   );
-};
-
-export default StudentDashboard;
+}

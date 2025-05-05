@@ -82,17 +82,36 @@ export default function StudentIdCardPage(){
     };
 
     /* guardar foto */
-    const savePic=async(cd,idx)=>{
-        const e=edit[cd.idCardId];
-        if(!e.pictureId)return alert('pictureId faltante');
-        try{
-            await axios.put(`${API}/picture/${e.pictureId}`,{
-                ...(e.photoAppointment && {photoAppointment: iso2b(e.photoAppointment)}),
-                photoUrl:e.pictureUrl
+    const savePic = async (cd, idx) => {
+        const e = edit[cd.idCardId];
+        if (!e.requirementId) {
+            return alert('requirementId faltante');
+        }
+        try {
+            // 1. Obtener el requirement para extraer pictureId
+            const reqRes = await axios.get(`${API}/requirement/${e.requirementId}`);
+            const reqObj = reqRes.data.data ?? reqRes.data;
+            const picId  = reqObj.pictureId;
+            if (!picId) {
+                return alert('pictureId no encontrado en el requirement');
+            }
+
+            // 2. Hacer PUT con el pictureId correcto
+            await axios.put(`${API}/picture/${picId}`, {
+                ...(e.photoAppointment && { photoAppointment: iso2b(e.photoAppointment) }),
+                cif: cd.cif,
+                photoUrl: e.pictureUrl
             });
-            alert('✅ Foto guardada'); await load(); keepOpen(idx);
-        }catch(err){console.error(err);alert('❌ Error al guardar foto');}
+
+            alert('✅ Foto guardada');
+            await load();
+            keepOpen(idx);
+        } catch (err) {
+            console.error(err);
+            alert('❌ Error al guardar foto');
+        }
     };
+
 
     /* guardar comprobante */
     const saveReq=async(cd,idx)=>{
