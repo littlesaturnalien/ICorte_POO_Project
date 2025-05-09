@@ -17,7 +17,7 @@ public abstract class BaseUserCredentials {
     @Column(name = "cif", nullable = false, updatable = false)
     private String cif;
 
-    @Column(name = "contraseña", unique = true, nullable = false)
+    @Column(name = "contraseña", unique = true)
     private String password;
 
     public BaseUserCredentials(String cif) {
