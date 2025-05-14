@@ -27,10 +27,19 @@ export default function Students() {
   const buildDeg  = s => s.studies?.map(st => st.degreeName).join('; ') || '—';
   const buildFac  = s => s.studies?.map(st => st.facultyName).join('; ') || '—';
   const buildState = s => {
-    const cards = s.idCards || [];
+    const currentYear = new Date().getFullYear();
+    const cards = s.idCards?.filter(card => card.year === currentYear) || [];
+
     if (!cards.length) return '—';
-    return cards.reduce((a,b) => b.year > a.year ? b : a).status;
+    const mostRecent = cards.reduce((latest, curr) =>
+        curr.idCardId > latest.idCardId ? curr : latest
+    );
+
+    return mostRecent.status;
   };
+
+
+
 
   useEffect(() => {
     (async () => {

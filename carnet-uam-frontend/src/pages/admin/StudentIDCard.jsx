@@ -45,17 +45,22 @@ export default function StudentIdCardPage(){
         const st={};
         c.forEach(cd=>{
             const req=r.find(q=>q.requirementId===cd.requirement_id);
-            st[cd.idCardId]={
-                status:cd.status,
-                notes: cd.notes||'',
+            st[cd.idCardId] = {
+                status: cd.status,
+                notes: cd.notes || '',
                 issueDate: toISODate(cd.issueDate),
                 deliveryAppointment: b2iso(cd.deliveryAppointment),
                 pictureId: cd.picture_id,
-                pictureUrl: cd.picture_url||'',
+                pictureUrl: cd.picture_url || '',
                 photoAppointment: b2iso(cd.photoAppointment),
                 requirementId: req?.requirementId,
-                paymentProofUrl: req?.paymentProofUrl||'',
+                paymentProofUrl: req?.paymentProofUrl || '',
+                motive: req?.motive || 'No indicado',
+                expirationDate: cd.expirationDate || 'No especificada',
+                selectedDegreeName: cd.selectedDegreeName || 'No indicada',
+                selectedFacultyName: cd.selectedFacultyName || 'No indicada'
             };
+
         });
         setEdit(st);
     };
@@ -148,38 +153,57 @@ export default function StudentIdCardPage(){
 
                                 {open===i&&(
                                     <div className="p-4 space-y-5 bg-white rounded-b-lg">
+                                        <section className="space-y-2">
+                                            <h2 className="text-lg font-medium">Detalles de la Solicitud</h2>
+                                            <p><strong>Carrera:</strong> {e.selectedDegreeName}</p>
+                                            <p><strong>Facultad:</strong> {e.selectedFacultyName}</p>
+                                            <p><strong>Fecha de vencimiento:</strong> {e.expirationDate}</p>
+                                            <p><strong>Motivo:</strong> {e.motive}</p>
+                                        </section>
                                         {/* carnet */}
                                         <section className="space-y-2">
                                             <h2 className="text-lg font-medium">Carnet</h2>
                                             <div className="flex gap-2 items-center">
                                                 <label className="w-44 font-semibold">Estado</label>
                                                 <select value={e.status}
-                                                        onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,status:ev.target.value}})}
+                                                        onChange={ev => setEdit({
+                                                            ...edit,
+                                                            [c.idCardId]: {...e, status: ev.target.value}
+                                                        })}
                                                         className="border px-2 py-1 rounded">
-                                                    {STATUS_OPTS.map(s=><option key={s}>{s}</option>)}
+                                                    {STATUS_OPTS.map(s => <option key={s}>{s}</option>)}
                                                 </select>
                                             </div>
                                             <div className="flex gap-2 items-center">
                                                 <label className="w-44 font-semibold">Emisión</label>
                                                 <input type="date" className="border px-2 py-1 rounded"
                                                        value={e.issueDate}
-                                                       onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,issueDate:ev.target.value}})}/>
+                                                       onChange={ev => setEdit({
+                                                           ...edit,
+                                                           [c.idCardId]: {...e, issueDate: ev.target.value}
+                                                       })}/>
                                             </div>
                                             <div className="flex gap-2 items-center">
                                                 <label className="w-44 font-semibold">Entrega</label>
                                                 <input type="datetime-local" className="border px-2 py-1 rounded"
                                                        value={e.deliveryAppointment}
-                                                       onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,deliveryAppointment:ev.target.value}})}/>
+                                                       onChange={ev => setEdit({
+                                                           ...edit,
+                                                           [c.idCardId]: {...e, deliveryAppointment: ev.target.value}
+                                                       })}/>
                                             </div>
                                             <div className="flex gap-2 items-start">
                                                 <label className="w-44 font-semibold mt-1">Notas</label>
                                                 <textarea rows={3} className="border px-2 py-1 rounded w-full"
                                                           value={e.notes}
-                                                          onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,notes:ev.target.value}})}/>
+                                                          onChange={ev => setEdit({
+                                                              ...edit,
+                                                              [c.idCardId]: {...e, notes: ev.target.value}
+                                                          })}/>
                                             </div>
-                                            <button onClick={()=>saveCard(c,i)}
+                                            <button onClick={() => saveCard(c, i)}
                                                     className="text-white px-3 py-1 rounded"
-                                                    style={{ backgroundColor: C.tealMid }}>
+                                                    style={{backgroundColor: C.tealMid}}>
                                                 Guardar Carnet
                                             </button>
                                         </section>
@@ -191,20 +215,26 @@ export default function StudentIdCardPage(){
                                                 <label className="w-44 font-semibold">URL</label>
                                                 <input type="url" className="border px-2 py-1 rounded w-full"
                                                        value={e.pictureUrl}
-                                                       onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,pictureUrl:ev.target.value}})}/>
+                                                       onChange={ev => setEdit({
+                                                           ...edit,
+                                                           [c.idCardId]: {...e, pictureUrl: ev.target.value}
+                                                       })}/>
                                             </div>
                                             <div className="flex gap-2 items-center">
                                                 <label className="w-44 font-semibold">Cita Foto</label>
                                                 <input type="datetime-local" className="border px-2 py-1 rounded"
                                                        value={e.photoAppointment}
-                                                       onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,photoAppointment:ev.target.value}})}/>
+                                                       onChange={ev => setEdit({
+                                                           ...edit,
+                                                           [c.idCardId]: {...e, photoAppointment: ev.target.value}
+                                                       })}/>
                                             </div>
-                                            <button onClick={()=>savePic(c,i)}
+                                            <button onClick={() => savePic(c, i)}
                                                     className="text-white px-3 py-1 rounded"
-                                                    style={{ backgroundColor: C.tealLight }}>
+                                                    style={{backgroundColor: C.tealLight}}>
                                                 Guardar Foto
                                             </button>
-                                            {e.pictureUrl&&(
+                                            {e.pictureUrl && (
                                                 <p className="mt-1">
                                                     <a href={e.pictureUrl} target="_blank" rel="noreferrer"
                                                        className="text-[#0b545b] underline">Ver foto actual</a>
@@ -219,14 +249,17 @@ export default function StudentIdCardPage(){
                                                 <label className="w-44 font-semibold">URL</label>
                                                 <input type="url" className="border px-2 py-1 rounded w-full"
                                                        value={e.paymentProofUrl}
-                                                       onChange={ev=>setEdit({...edit,[c.idCardId]:{...e,paymentProofUrl:ev.target.value}})}/>
+                                                       onChange={ev => setEdit({
+                                                           ...edit,
+                                                           [c.idCardId]: {...e, paymentProofUrl: ev.target.value}
+                                                       })}/>
                                             </div>
-                                            <button onClick={()=>saveReq(c,i)}
+                                            <button onClick={() => saveReq(c, i)}
                                                     className="text-white px-3 py-1 rounded"
-                                                    style={{ backgroundColor: C.tealDark }}>
+                                                    style={{backgroundColor: C.tealDark}}>
                                                 Guardar Comprobante
                                             </button>
-                                            {e.paymentProofUrl&&(
+                                            {e.paymentProofUrl && (
                                                 <p className="mt-1">
                                                     <a href={e.paymentProofUrl} target="_blank" rel="noreferrer"
                                                        className="text-[#0b545b] underline">Ver comprobante actual</a>
