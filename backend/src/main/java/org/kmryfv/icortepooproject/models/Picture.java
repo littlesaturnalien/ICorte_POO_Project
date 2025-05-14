@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "Foto")
@@ -18,14 +19,14 @@ public class Picture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pictureId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "cif", nullable = false)
     private UserProfile user;
 
     @Column(name = "toma_de_foto", unique = true)
     private LocalDateTime photoAppointment;
 
-    @Column(name = "url_foto", nullable = false)
+    @Column(name = "url_foto")
     private String photoUrl;
 
     @OneToOne(mappedBy = "picture")

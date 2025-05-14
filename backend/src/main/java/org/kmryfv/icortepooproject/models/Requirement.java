@@ -26,6 +26,9 @@ public class Requirement {
     @JoinColumn(name = "foto_id")
     private Picture picture;
 
+    @Column(name = "motivo", nullable = false)
+    private String motive;
+
     @OneToOne(mappedBy = "requirement")
     private IDCard idCard;
 }

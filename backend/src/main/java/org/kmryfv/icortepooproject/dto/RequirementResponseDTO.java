@@ -12,4 +12,5 @@ public class RequirementResponseDTO {
     private String paymentProofUrl;
     private Long pictureId;
     private String pictureUrl;
+    private String motive;
 }

@@ -43,6 +43,7 @@ public class RequirementManagementImpl implements IRequirementManagement {
         Requirement requirement = new Requirement();
         requirement.setUser(user);
         requirement.setPaymentProofUrl(dto.getPaymentProofUrl());
+        requirement.setMotive(dto.getMotive());
 
         requirement.setPicture(picture);
         picture.setRequirement(requirement);
@@ -104,6 +105,7 @@ public class RequirementManagementImpl implements IRequirementManagement {
         dto.setCif(r.getUser().getCif());
         dto.setUserName(r.getUser().getNames() + " " + r.getUser().getSurnames());
         dto.setPaymentProofUrl(r.getPaymentProofUrl());
+        dto.setMotive(r.getMotive());
 
         if (r.getPicture() != null) {
             dto.setPictureId(r.getPicture().getPictureId());

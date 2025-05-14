@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class IDCardManagementImpl implements IIDCardManagement {
@@ -38,13 +37,13 @@ public class IDCardManagementImpl implements IIDCardManagement {
         UserProfile user = userProfileRepository.findById(dto.getCif())
                 .orElseThrow(() -> new EntityNotFoundException("Usuario con CIF " + dto.getCif() + " no encontrado"));
 
-        int currentYear = LocalDate.now().getYear();
+        /*int currentYear = LocalDate.now().getYear();
         if (idCardRepository.existsByUserAndYear(user, currentYear) ) {
             throw new IllegalStateException(
                     "El estudiante con CIF " + user.getCif()
                             + " ya tiene un carnet emitido en el año " + currentYear
             );
-        }
+        }*/
 
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
@@ -57,8 +56,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
         IDCard idCard = new IDCard(user, dto.getSemester());
         idCard.setSelectedDegree(selectedDegree);
         idCard.setRequirement(requirement);
-        idCard.setDeliveryAppointment(dto.getDeliveryAppointment());
-        idCard.setIssueDate(java.time.LocalDate.now()); // You can adjust this logic as needed
+        idCard.setIssueDate(java.time.LocalDate.now());
 
         return idCardRepository.save(idCard);
     }
@@ -106,9 +104,10 @@ public class IDCardManagementImpl implements IIDCardManagement {
         if (issue != null) {
             card.setIssueDate(issue);
         }
-        if (delivery != null) {
-            card.setDeliveryAppointment(delivery);
+        if (delivery != null && delivery.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a la fecha actual.");
         }
+        card.setDeliveryAppointment(delivery);
         idCardRepository.save(card);
     }
 

@@ -9,4 +9,5 @@ public class RequirementRequestDTO {
     private String cif;
     private String paymentProofUrl;
     private Long pictureId;
+    private String motive;
 }

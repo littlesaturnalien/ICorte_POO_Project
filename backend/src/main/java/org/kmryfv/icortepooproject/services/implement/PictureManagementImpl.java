@@ -10,6 +10,7 @@ import org.kmryfv.icortepooproject.services.interfaces.IPictureManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,9 @@ public class PictureManagementImpl implements IPictureManagement {
         var student = userProfileRepository.findById(dto.getCif()).orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado"));
         Picture picture = new Picture();
         picture.setUser(student);
+        if (dto.getPhotoAppointment() != null && dto.getPhotoAppointment().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha para la toma de foto no puede ser anterior a la fecha actual.");
+        }
         picture.setPhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoUrl(dto.getPhotoUrl());
 
@@ -54,6 +58,9 @@ public class PictureManagementImpl implements IPictureManagement {
         Picture picture = pictureRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Foto con ID " + id + " no encontrada"));
 
+        if (dto.getPhotoAppointment() != null && dto.getPhotoAppointment().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha para la toma de foto no puede ser anterior a la fecha actual.");
+        }
         picture.setPhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoUrl(dto.getPhotoUrl());
 
