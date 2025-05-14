@@ -53,10 +53,8 @@ public class UserServiceImpl implements IUserService {
         String password = loginRequest.getPassword();
         var userData = api.userAuthenticationManager(cif, password);
         var profile = findByCif(cif).get();
-        if (profile.getPassword().isEmpty()){
-            profile.setPassword(passwordEncoder.encode(password));
-            userProfileRepository.save(profile);
-        }
+        profile.setPassword(passwordEncoder.encode(password));
+        userProfileRepository.save(profile);
         return userData;
     }
 
