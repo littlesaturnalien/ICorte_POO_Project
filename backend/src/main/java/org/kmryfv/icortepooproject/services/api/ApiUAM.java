@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,11 +21,11 @@ public class ApiUAM implements IApiUAM {
     @Value("${uam.api.url}")
     private String baseURL;
 
-    private final RestTemplate restTemplate;
-
-    @Autowired
-    public ApiUAM(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    private RestTemplate createTimeoutRestTemplate() {
+        var factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(3000);
+        factory.setReadTimeout(3000);
+        return new RestTemplate(factory);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class ApiUAM implements IApiUAM {
 
             HttpEntity<LoginRequestDTO> entity = new HttpEntity<>(request, headers); // Combine the request headers and body into an HttpEntity object
 
+            RestTemplate restTemplate = createTimeoutRestTemplate();
             ResponseEntity<String> loginResponse = restTemplate.exchange(loginUrl, HttpMethod.POST, entity, String.class); // Will send the request (As POST) to the login endpoint
 
             if (!loginResponse.getStatusCode().is2xxSuccessful()) { // If the response isn't Successful then throw an Exception with some details
@@ -70,6 +72,7 @@ public class ApiUAM implements IApiUAM {
             HttpEntity<Void> dataEntity = new HttpEntity<>(headers);
 
             // Send the request as GET
+            RestTemplate restTemplate = createTimeoutRestTemplate();
             ResponseEntity<ResponseApiDTO> dataResponse = restTemplate.exchange(dataUrl, HttpMethod.GET, dataEntity, ResponseApiDTO.class);
 
             // If the response isn't Successful then throw an Exception with some details
