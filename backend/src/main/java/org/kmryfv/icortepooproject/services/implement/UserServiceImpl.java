@@ -13,6 +13,7 @@ import org.kmryfv.icortepooproject.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ public class UserServiceImpl implements IUserService {
         userProfileRepository.save(profile);
         return userData;
     }
+
 
     @Override
     public boolean isAuthorized(UserDataDTO user) {
@@ -154,7 +156,7 @@ public class UserServiceImpl implements IUserService {
                 user.getEmail(),
                 user.getRole().name(),
                 user.getType(),
-                studies,                           // 👈  ahora es una sola lista
+                studies,
                 user.getPhoneNumber(),
                 user.getIdCards().stream()
                         .map(card -> new IDCardSimplifiedDTO(

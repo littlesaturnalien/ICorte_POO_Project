@@ -25,22 +25,6 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /*@PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
-        try {
-            var userData = userService.authenticateAPI(loginRequest);
-            if (userData == null) {
-                return ResponseEntity.status(401).body("No se encontraron datos de usuario");
-            }
-            var user = userData.get(0);
-            if (!userService.isAuthorized(user)) {
-                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores o superadministradores tienen acceso automático.");
-            } return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al autenticar: " + e.getMessage());
-        }
-    }*/
-
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
         try {

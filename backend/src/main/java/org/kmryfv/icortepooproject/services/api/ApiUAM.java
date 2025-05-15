@@ -3,6 +3,7 @@ package org.kmryfv.icortepooproject.services.api;
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.ResponseApiDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,9 +22,9 @@ public class ApiUAM implements IApiUAM {
 
     private final RestTemplate restTemplate;
 
-    public ApiUAM() {
-        this.restTemplate = new RestTemplate();
-        //Creating a new instance of RestTemplate, usefully to make HTTP calls
+    @Autowired
+    public ApiUAM(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
     @Override
