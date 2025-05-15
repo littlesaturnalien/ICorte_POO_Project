@@ -30,9 +30,7 @@ public class PictureManagementImpl implements IPictureManagement {
         var student = userProfileRepository.findById(dto.getCif()).orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado"));
         Picture picture = new Picture();
         picture.setUser(student);
-        if (dto.getPhotoAppointment() != null && dto.getPhotoAppointment().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La fecha para la toma de foto no puede ser anterior a la fecha actual.");
-        }
+        validatePhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoUrl(dto.getPhotoUrl());
 
@@ -57,10 +55,7 @@ public class PictureManagementImpl implements IPictureManagement {
     public PictureResponseDTO update(Long id, PictureRequestDTO dto) {
         Picture picture = pictureRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Foto con ID " + id + " no encontrada"));
-
-        if (dto.getPhotoAppointment() != null && dto.getPhotoAppointment().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La fecha para la toma de foto no puede ser anterior a la fecha actual.");
-        }
+        validatePhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoAppointment(dto.getPhotoAppointment());
         picture.setPhotoUrl(dto.getPhotoUrl());
 
@@ -83,5 +78,23 @@ public class PictureManagementImpl implements IPictureManagement {
         dto.setPhotoAppointment(picture.getPhotoAppointment());
         dto.setPhotoUrl(picture.getPhotoUrl());
         return dto;
+    }
+
+    private void validatePhotoAppointment(LocalDateTime appointment) {
+        if (appointment != null) {
+            if (appointment.isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("La fecha para la toma de foto no puede ser anterior a la fecha actual.");
+            }
+            if (appointment.isAfter(LocalDateTime.now().plusMonths(1))) {
+                throw new IllegalArgumentException("La fecha para la toma de foto no puede exceder el mes desde hoy.");
+            }
+            if (appointment.getDayOfWeek().getValue() == 7) {
+                throw new IllegalArgumentException("No se pueden agendar citas los domingos.");
+            }
+            int hour = appointment.getHour();
+            if (hour < 8 || hour >= 17) {
+                throw new IllegalArgumentException("La hora de la cita debe estar entre las 08:00 am y las 5:00 pm");
+            }
+        }
     }
 }

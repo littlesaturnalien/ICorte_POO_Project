@@ -37,14 +37,6 @@ public class IDCardManagementImpl implements IIDCardManagement {
         UserProfile user = userProfileRepository.findById(dto.getCif())
                 .orElseThrow(() -> new EntityNotFoundException("Usuario con CIF " + dto.getCif() + " no encontrado"));
 
-        /*int currentYear = LocalDate.now().getYear();
-        if (idCardRepository.existsByUserAndYear(user, currentYear) ) {
-            throw new IllegalStateException(
-                    "El estudiante con CIF " + user.getCif()
-                            + " ya tiene un carnet emitido en el año " + currentYear
-            );
-        }*/
-
         Requirement requirement = requirementRepository.findById(dto.getRequirementId())
                 .orElseThrow(() -> new EntityNotFoundException("Requisito con ID " + dto.getRequirementId() + " no encontrado"));
 
@@ -104,9 +96,7 @@ public class IDCardManagementImpl implements IIDCardManagement {
         if (issue != null) {
             card.setIssueDate(issue);
         }
-        if (delivery != null && delivery.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("La fecha de entrega no puede ser anterior a la fecha actual.");
-        }
+        validateDeliveryAppointment(delivery);
         card.setDeliveryAppointment(delivery);
         idCardRepository.save(card);
     }
@@ -149,5 +139,23 @@ public class IDCardManagementImpl implements IIDCardManagement {
         dto.setPicture_url(requirement.getPicture().getPhotoUrl());
 
         return dto;
+    }
+
+    private void validateDeliveryAppointment(LocalDateTime appointment) {
+        if (appointment != null) {
+            if (appointment.isBefore(LocalDateTime.now())) {
+                throw new IllegalArgumentException("La fecha para la entrega de carnet no puede ser anterior a la fecha actual.");
+            }
+            if (appointment.isAfter(LocalDateTime.now().plusMonths(1))) {
+                throw new IllegalArgumentException("La fecha para la entrega de carnet no puede exceder el mes desde hoy.");
+            }
+            if (appointment.getDayOfWeek().getValue() == 7) {
+                throw new IllegalArgumentException("No se puede entregar carnets los domingos.");
+            }
+            int hour = appointment.getHour();
+            if (hour < 8 || hour >= 17) {
+                throw new IllegalArgumentException("La hora de la cita debe estar entre las 08:00 am y las 5:00 pm");
+            }
+        }
     }
 }

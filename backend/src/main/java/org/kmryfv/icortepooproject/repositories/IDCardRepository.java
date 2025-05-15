@@ -14,5 +14,4 @@ import java.util.List;
 public interface IDCardRepository extends JpaRepository<IDCard, Long> {
     @Query("SELECT DISTINCT c.user FROM IDCard c WHERE c.status = :status")
     List<UserProfile> findUsersByIDCardStatus(@Param("status") IDCardStatus status);
-    boolean existsByUserAndYear(UserProfile user, int year);
 }

@@ -32,7 +32,7 @@ public class UserProfile extends BaseUserCredentials {
     @Column(name = "rol", nullable = false)
     private UserRole role;
 
-    @Column(name = "tipo")
+    @Column(name = "tipo", nullable = false)
     private String type;
 
     @Column(name = "carrera")

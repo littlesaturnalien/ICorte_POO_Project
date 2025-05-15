@@ -3,7 +3,6 @@ package org.kmryfv.icortepooproject.services.api;
 import org.kmryfv.icortepooproject.dto.LoginRequestDTO;
 import org.kmryfv.icortepooproject.dto.ResponseApiDTO;
 import org.kmryfv.icortepooproject.dto.UserDataDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
