@@ -25,7 +25,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
         try {
             var userData = userService.authenticateAPI(loginRequest);
@@ -39,7 +39,38 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al autenticar: " + e.getMessage());
         }
+    }*/
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticate(@RequestBody LoginRequestDTO loginRequest) {
+        try {
+            var userData = userService.authenticateAPI(loginRequest);
+            if (userData == null || userData.isEmpty()) {
+                throw new RuntimeException("API UAM no devolvió datos válidos");
+            }
+            var user = userData.get(0);
+            if (!userService.isAuthorized(user)) {
+                return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores " +
+                        "o superadministradores tienen acceso automático.");
+            }
+            return ResponseEntity.ok(user);
+        } catch (Exception apiEx) {
+            try {
+                var dbUser = userService.authenticateDB(loginRequest);
+                if (dbUser == null) {
+                    return ResponseEntity.status(401).body("Credenciales inválidas en ambos sistemas");
+                }
+                if (!userService.isAuthorized(dbUser)) {
+                    return ResponseEntity.status(403).body("Acceso denegado. Solo los estudiantes, administradores " +
+                            "o superadministradores tienen acceso automático.");
+                }
+                return ResponseEntity.ok(dbUser);
+            } catch (Exception dbEx) {
+                return ResponseEntity.status(500).body("Error al autentica localmente: " + dbEx.getMessage());
+            }
+        }
     }
+
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody UserProfileRequestDTO request){
