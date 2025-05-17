@@ -67,7 +67,7 @@ const Login = () => {
 
     return (
         <div className="min-h-screen relative flex flex-col">
-            {/* Fondo */}
+            {/* Fondo UAM*/}
             <img
                 src="/images/login-bg.webp"
                 alt="background"
