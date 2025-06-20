@@ -16,7 +16,7 @@ import java.util.Set;
 )
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserProfile extends BaseUserCredentials {
 
     @Column(name = "nombres", nullable = false)
